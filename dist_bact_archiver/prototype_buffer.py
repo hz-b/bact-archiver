@@ -10,6 +10,9 @@ https://developers.google.com/protocol-buffers
 
 import os.path
 import setuptools
+import logging
+
+logger = logging.getLogger('setup')
 
 import numpy
 from numpy.distutils.misc_util import get_numpy_include_dirs
@@ -87,6 +90,7 @@ try:
     c_lib = config_features.google_protobuf_c_library
 except AttributeError:
     pass
+
 if c_lib:
     # Current assumption: cython is a prerequisite when using c-library for
     # protobuf protocol
@@ -106,21 +110,21 @@ if c_lib:
         macros += [("PROTOBUF_USE_DLLS", 1)]
         pass
 
+    include_dirs = ["."] + array_include_dirs + [epics_archiver_backend_path]
+    cython_src = os.path.join(epics_archiver_backend_path, "EPICSEvent.pyx")
+    epics_event = os.path.join(epics_archiver_backend_path, "EPICSEvent.pb.cc")
     cython_extensions = [
         setuptools.Extension("bact_archiver.backend.EPICSEvent",
-                             sources=[
-                                 os.path.join(epics_archiver_backend_path, "EPICSEvent.pyx"),
-                                 os.path.join(epics_archiver_backend_path, "EPICSEvent.pb.cc"),
-                             ],
-                             include_dirs = ["."] + array_include_dirs + [epics_archiver_backend_path],
+                             sources=[cython_src],
+                             include_dirs=include_dirs,
                              define_macros = macros,
                              libraries=libraries,
+                             #language_level=3,
                              language ="c++"),
-
-        #setuptools.Extension("bact.epics.archiver.backend.example",
-        #          [
-        #              os.path.join(epics_archiver_backend_path, "example.pyx")
-        #              ],
-        #          ),
     ]
-    cython_extensions = cythonize(cython_extensions)
+
+
+    directives = dict(language_level='3str')
+    # Don't know why it does not work directly
+    # cythonize(cython_src, force=True, compiler_directives=directives, language="c++")
+    cython_extensions = cythonize(cython_extensions, force=False)
