@@ -16,7 +16,7 @@ The following functions are expected to be called by external modules?
 """
 
 # read EPICSEvent.pxd definition of Protocol-Buffer code
-from EPICSEvent cimport PayloadInfo, ScalarDouble, string
+from .EPICSEvent cimport PayloadInfo, ScalarDouble, string
 
 import numpy as np
 cimport numpy as np
@@ -27,8 +27,8 @@ cimport cython
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
 cdef string cdecode(char[:] data, string & res) nogil:
-    """Decode a PB message. 
-  
+    """Decode a PB message.
+
     Args:
         data : a char buffer
 
@@ -37,7 +37,7 @@ cdef string cdecode(char[:] data, string & res) nogil:
 
     As serialized PB messages are binary data; after serialization, newline
     characters are escaped to maintain a "sample per line" constraint.
- 
+
     ASCII codes are escaped in the following manner:
     * ``0x1B`` to  ``0x1B 0x01``
     * newline character ``\n`` =  ``0x0A`` to ``0x1B 0x02``
@@ -222,7 +222,7 @@ cdef read_chunk_f8(char[:] seq, int N, np.ndarray[np.int32_t] secs, np.ndarray[n
 @cython.wraparound(False)
 cdef read_vchunk_i2(char[:] seq, int N, int elements, np.ndarray[np.int32_t] secs, np.ndarray[np.int32_t] nanos):
     cdef np.ndarray[np.int16_t, ndim=2] values = np.empty((N,elements),dtype=np.int16)
-        
+
     cdef int i
     cdef int start = 0
     cdef int stop = -1
@@ -247,7 +247,7 @@ cdef read_vchunk_i2(char[:] seq, int N, int elements, np.ndarray[np.int32_t] sec
 @cython.wraparound(False)
 cdef read_vchunk_i4(char[:] seq, int N, int elements, np.ndarray[np.int32_t] secs, np.ndarray[np.int32_t] nanos):
     cdef np.ndarray[np.int32_t, ndim=2] values = np.empty((N,elements),dtype=np.int32)
-    
+
     cdef int i
     cdef int start = 0
     cdef int stop = -1
@@ -271,7 +271,7 @@ cdef read_vchunk_i4(char[:] seq, int N, int elements, np.ndarray[np.int32_t] sec
 @cython.wraparound(False)
 cdef read_vchunk_f4(char[:] seq, int N, int elements, np.ndarray[np.int32_t] secs, np.ndarray[np.int32_t] nanos):
     cdef np.ndarray[np.float32_t, ndim=2] values = np.empty((N,elements),dtype=np.float32)
-    
+
     cdef int i
     cdef int start = 0
     cdef int stop = -1
@@ -295,7 +295,7 @@ cdef read_vchunk_f4(char[:] seq, int N, int elements, np.ndarray[np.int32_t] sec
 @cython.wraparound(False)
 cdef read_vchunk_f8(char[:] seq, int N, int elements, np.ndarray[np.int32_t] secs, np.ndarray[np.int32_t] nanos):
     cdef np.ndarray[np.float64_t, ndim=2] values = np.empty((N,elements),dtype=np.float64)
-    
+
     cdef int i
     cdef int start = 0
     cdef int stop = -1
@@ -319,7 +319,7 @@ cdef read_vchunk_f8(char[:] seq, int N, int elements, np.ndarray[np.int32_t] sec
 @cython.wraparound(False)
 cdef read_vchunk_char(char[:] seq, int N, int elements, np.ndarray[np.int32_t] secs, np.ndarray[np.int32_t] nanos):
     cdef np.ndarray[np.int8_t, ndim=2] values = np.empty((N,elements),dtype=np.int8)
-    
+
     cdef int i
     cdef int start = 0
     cdef int stop = -1
@@ -345,7 +345,7 @@ cdef read_vchunk_char(char[:] seq, int N, int elements, np.ndarray[np.int32_t] s
 #
 def read_chunk(char[:] seq, header):
     """Read a protocol buffer chunk
-    
+
     Args:
         seq : a character buffer
         epics_type : an integer defining the epics type
@@ -358,14 +358,14 @@ def read_chunk(char[:] seq, header):
 
     Currently the following epics types are implemented:
         *  0.  : string
-        *  3.  : enum 
+        *  3.  : enum
         *  5.  : i4 (signed integers of four bytes)
         *  6.  : f8 (doubles of eight bytes)
         *  9.  : i2 vector (signed [short] integers of two bytes)
         *  11. : vector of characters
         *  12. : f4 vector (floats of four bytes)
         *  13. : f8 vector (floats of eight bytes)
-    
+
     """
     cdef int epics_type = header.type
     cdef int elements = header.elementCount
@@ -415,7 +415,7 @@ def read_header(char[:] line):
             * type
             * year
             * elementcount
-    
+
     use carchiver.read_header if PayloadInfo is need directly
     """
     cdef PayloadInfo info = PayloadInfo()
@@ -428,6 +428,3 @@ def read_header(char[:] line):
     header['elementcount'] = info.elementcount()
 
     return header
-
-
-    
