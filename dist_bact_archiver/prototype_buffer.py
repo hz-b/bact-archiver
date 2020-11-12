@@ -115,7 +115,7 @@ if c_lib:
     epics_event = os.path.join(epics_archiver_backend_path, "EPICSEvent.pb.cc")
     cython_extensions = [
         setuptools.Extension("bact_archiver.backend.EPICSEvent",
-                             sources=[cython_src],
+                             sources=[cython_src, epics_event],
                              include_dirs=include_dirs,
                              define_macros = macros,
                              libraries=libraries,
