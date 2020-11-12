@@ -1,3 +1,11 @@
+# Files generated be configuration process
+dist_bact_archiver/bact_archiver_config_features.*
+
+# Files created by cython process
+bact_archiver/backend/EPICSEvent.cpp
+bact_archiver/backend/EPICSEvent.pb.h
+bact_archiver/backend/EPICSEvent.pb.cc
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +135,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# emacs files
+*~
