@@ -126,5 +126,5 @@ if c_lib:
 
     directives = dict(language_level='3str')
     # Don't know why it does not work directly
-    # cythonize(cython_src, force=True, compiler_directives=directives, language="c++")
+    cythonize(cython_src, force=True, compiler_directives=directives, language="c++")
     cython_extensions = cythonize(cython_extensions, force=False)
