@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from bact.epics.archiver.archiver2 import get_data
-from bact.epics.archiver.carchiver import get_data as cget_data
+from bact_archiver.archiver2 import get_data
+from bact_archiver.carchiver import get_data as cget_data
 from common import test_data_dir
 
 
@@ -13,10 +13,10 @@ class ArchiverClientTest(unittest.TestCase):
     def read(self, fname):
         fullname = os.path.join(test_data_dir, fname)
         print('reading {}'.format(fullname))
-        with open(fullname,'rb') as f:
+        with open(fullname, 'rb') as f:
             return f.read()
 
-    def run_decode(self,*,fname=None, **kw):
+    def run_decode(self, *, fname=None, **kw):
         data = self.read(fname)
 
         header, values = get_data(data)
