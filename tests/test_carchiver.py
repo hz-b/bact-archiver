@@ -1,9 +1,12 @@
 import os
 import unittest
+import logging
 
 from bact_archiver.archiver2 import get_data
 from bact_archiver.carchiver import get_data as cget_data
 from common import test_data_dir
+
+log = logging.getLogger('test')
 
 
 class ArchiverClientTest(unittest.TestCase):
@@ -12,7 +15,7 @@ class ArchiverClientTest(unittest.TestCase):
 
     def read(self, fname):
         fullname = os.path.join(test_data_dir, fname)
-        print('reading {}'.format(fullname))
+        log.info('reading {}'.format(fullname))
         with open(fullname, 'rb') as f:
             return f.read()
 
@@ -20,7 +23,7 @@ class ArchiverClientTest(unittest.TestCase):
         data = self.read(fname)
 
         header, values = get_data(data)
-        print(header)
+        log.debug('Header %s', header)
 
         self.assertEqual(header.type, kw['exp_type'])
         self.assertEqual(len(values), kw['exp_len'])
@@ -99,7 +102,7 @@ class CythonArchiverClientTest(ArchiverClientTest):
         data = cget_data(data)
         header = data.meta['header']
         values = data.values
-        print(header)
+        log.debug('Header: %s', header)
 
         self.assertEqual(header.type, kw['exp_type'])
         self.assertEqual(len(values), kw['exp_len'])
