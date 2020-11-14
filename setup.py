@@ -5,7 +5,7 @@
 
 from cysetuptools import setup
 import setuptools
-import prototype_buffer
+import protocol_buffer
 
-cmdclass = dict(build_proto_c=prototype_buffer.GenerateProtocolBuffer)
+cmdclass = dict(build_proto_c=protocol_buffer.GenerateProtocolBuffer)
 setup(cmdclass=cmdclass)
