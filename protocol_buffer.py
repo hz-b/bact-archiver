@@ -28,8 +28,10 @@ class GenerateProtocolBuffer(setuptools.Command):
         ('inplace', None, 'create files inplace of proto-file (default)'),
         ('python', None, 'create python wrapper'),
         ('cpp', None, 'create C++ wrapper'),
-        ('source', None, ''),
-        ('dir', None, '.'),
+        ('source', None, 'files to be processed by protoc'),
+        ('src-dir', None, 'directory, where the input files are located'),
+        ('pydir', None, 'directroy, where the python output will be placed'),
+        ('build-dir', None, 'directroy, where the output will be placed'),
         ('protoc=', None, 'protoc executable to use'),
     ]
 
@@ -40,8 +42,12 @@ class GenerateProtocolBuffer(setuptools.Command):
         self.python = False
         self.cpp = False
         self.protoc = None
+        cwd = os.getcwd()
         self.source = ''
-        self.dir = '.'
+        self.pydir = cwd
+        self.src_dir = cwd
+        self.build_dir = cwd
+
 
     def finalize_options(self):
         """Post-process options."""
@@ -65,9 +71,9 @@ class GenerateProtocolBuffer(setuptools.Command):
             protoc = self.protoc
 
         #self.announce('using protoc "%s"' %(protoc,), level=_log.INFO)
-        args = [protoc, self.source, '--proto_path={}'.format(self.dir)]
+        args = [protoc, self.source, '--proto_path={}'.format(self.src_dir)]
 
         if self.cpp:
-            self.spawn(args + ['--cpp_out={}'.format(self.dir)])
+            self.spawn(args + ['--cpp_out={}'.format(self.build_dir)])
         if self.python:
-            self.spawn(args + ['--python_out={}'.format(self.dir)])
+            self.spawn(args + ['--python_out={}'.format(self.pydir)])
