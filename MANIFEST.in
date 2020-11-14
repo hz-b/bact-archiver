@@ -1,3 +1,7 @@
 include cysetuptools.py
-include prototype_buffer.py
-include backend/
+include protocol_buffer.py
+# the source files
+include proto/*
+# the files generated
+include proto_gen/*
+include bact_archiver/*.py

@@ -1,10 +1,9 @@
-# Files generated be configuration process
-dist_bact_archiver/bact_archiver_config_features.*
+# Files created by protoc
+proto_gen/
+bact_archiver/epics_event_pb2.py
 
-# Files created by cython process
-bact_archiver/backend/EPICSEvent.cpp
-bact_archiver/backend/EPICSEvent.pb.h
-bact_archiver/backend/EPICSEvent.pb.cc
+# Files created by cython
+proto/epics_event.cpp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
