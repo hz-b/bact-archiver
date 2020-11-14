@@ -2,7 +2,7 @@
 # Author: Andreas Schälicke <andreas.schaelicke@helmholtz-berlin.de>
 # Time-stamp: <2017-11-21 10:21:24 schaelicke>
 
-from .backend import EPICSEvent_pb2 as proto
+from . import epics_event_pb2 as proto
 from urllib.request import urlopen, quote, HTTPError
 import numpy as np
 import h5py

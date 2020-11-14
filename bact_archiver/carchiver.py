@@ -4,8 +4,8 @@
 """Work horse access to EPICS archiver appliance
 """
 
-from .backend.EPICSEvent import read_chunk, decode
-from .backend import EPICSEvent_pb2 as proto
+from .epics_event import read_chunk, decode
+from . import epics_event_pb2 as proto
 
 from .archiver2 import get_url, get_typeInfo, set_archiver_url, _dtypes, _dbrtypes, _dsize, Chunk
 
