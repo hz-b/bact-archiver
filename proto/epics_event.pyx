@@ -17,10 +17,10 @@ The following functions are expected to be called by external modules?
 """
 
 # read EPICSEvent.pxd definition of Protocol-Buffer code
-from backend.epics_event cimport PayloadInfo,  string
-from backend.epics_event cimport ScalarDouble, ScalarString, ScalarEnum, ScalarInt
-from backend.epics_event cimport VectorDouble, VectorFloat
-from backend.epics_event cimport VectorInt, VectorShort, VectorChar
+from proto.epics_event cimport PayloadInfo,  string
+from proto.epics_event cimport ScalarDouble, ScalarString, ScalarEnum, ScalarInt
+from proto.epics_event cimport VectorDouble, VectorFloat
+from proto.epics_event cimport VectorInt, VectorShort, VectorChar
 
 import numpy as np
 cimport numpy as np
