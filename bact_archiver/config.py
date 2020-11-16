@@ -55,7 +55,7 @@ class ArchiverConfiguration(ArchiverConfigurationInterface):
     @property
     def retrieval_url(self):
         if self.base_url is not None:
-            path = self.base_url + self.retrieval_path
+            path = self.base_url + '/' + self.retrieval_path
             return path
         assert(self.retrieval_path is not None)
         return self.retrieval_path

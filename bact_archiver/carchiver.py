@@ -6,8 +6,9 @@
 
 from .epics_event import read_chunk, decode
 from . import epics_event_pb2 as proto
-
-from .archiver2 import get_url, get_typeInfo, set_archiver_url, _dtypes, _dbrtypes, _dsize, Chunk
+from .protocol_buffer import (Chunk, dtypes as _dtypes, decoder as _decoder,
+                            dbrtypes as _dbrtypes)
+from .archiver import ArchiverBasis
 
 from urllib.request import urlopen, quote, HTTPError
 from functools import lru_cache
@@ -18,128 +19,47 @@ import pandas as pd
 import datetime
 import dateutil.parser
 import dateutil.tz
+import enum
+
 import logging
 
+logger = logging.getLogger('bact-archiver')
 
 
+class ApplianceOperators(enum.Enum):
+    '''
 
-logger = logging.getLogger('bact')
-
-
-def archiver(var,
-             t0='2017-10-02T21:00:00.000Z',
-             t1='2017-10-02T21:10:00.000Z',
-             **kws):
-    """Get archiver data for single EPICS variable in given time frame.
-
-    Args:
-        t0: start time (ISO 8601 format)
-        t1: end time (ISO 8601 format)
-        **kws: see :func:`get_data`
-
-    Returns:
-        tuple of numpy arrays or pandas.DataFrame see :func:`get_data`
-
-    Valid ISO 8601 time formats are:
-
-     * 2017-09-01T00:02:00Z
-     * 2017-09-01T00:02:00.000Z
-     * 2017-09-01T00:00:00+02
-     * 2017-09-01T00:00:00+0200
-     * 2017-09-01T00:00:00+02:00
-     * 2017-09-01T00:00:00.000+02:00
-
-    see [ISO8601]_
-
-    Example::
-
-        df = archiver('TOPUPCC:rdCur', '2017-10-02T21:00:00Z', '2017-10-02T21:00:00Z', return_type='pandas', time_format='datetime')
-        print(df.meta['header'])
-        plot(df.index, df.values.flatten())
-
-    """
-    f = urlopen(get_url().format(format='raw',
-                                 var=quote(var),
-                                 t0=quote(t0),
-                                 t1=quote(t1)))
-
-    x0 = dateutil.parser.isoparse(t0).astimezone(dateutil.tz.tzlocal())
-    x1 = dateutil.parser.isoparse(t1).astimezone(dateutil.tz.tzlocal())
-    return get_data(f.read(), t_start=x0, t_stop=x1, **kws)
-
-
-appliance_operators = [
-    'firstSample', 'lastSample', 'firstFill', 'lastFill', 'mean', 'min', 'max',
-    'count', 'ncount', 'nth', 'median', 'std', 'jitter', 'ignoreflyers',
-    'flyers', 'variance', 'popvariance', 'kurtosis', 'skewness'
-]
+    Todo:
+       check: generic archiver request?
+    '''
+    firstSample =   'firstSample'
+    lastSample =    'lastSample'
+    firstFill =     'firstFill'
+    lastFill =      'lastFill'
+    mean =          'mean'
+    min =           'min'
+    max =           'max'
+    count =         'count'
+    ncount =        'ncount'
+    nth =           'nth'
+    median =        'median'
+    std =           'std'
+    jitter =        'jitter'
+    ignoreflyers =  'ignoreflyers'
+    flyers =        'flyers'
+    variance =      'variance'
+    popvariance =   'popvariance'
+    kurtosis =      'kurtosis'
+    skewness=       'skewness'
 
 
 def dquote(pvname, dtype):
     if dtype == 'raw':
         return quote(pvname)
-    if dtype in appliance_operators:
+    elif dtype in appliance_operators:
         return quote('{}({})'.format(dtype, pvname))
-
-
-@lru_cache(maxsize=64)
-def request_data(pvname,
-                 t0='2017-10-02T21:00:00.000Z',
-                 t1='2017-10-02T21:10:00.000Z',
-                 *,
-                 dtype='raw'):
-    #print("request_data.cache_info: {}".format(request_data.cache_info()))
-    try:
-        print("request_data({}...)".format(get_url()))
-        request = get_url().format(format='raw',
-                                   var=dquote(pvname, dtype),
-                                   t0=quote(t0),
-                                   t1=quote(t1))
-        f = urlopen(request)
-        return f.read()
-    except Exception as e:
-        print('ERROR', request)
-        raise e
-
-
-def guess_size(pvname,
-               t0='2017-10-02T21:00:00.000Z',
-               t1='2017-10-02T21:10:00.000Z'):
-    #    data = request_data(pvname, t0, t0, dtype='firstSample')
-    #    header, values, secs, nanos = get_data(data, return_type='raw')
-    #    print(header)
-    #    if header.type == 0 or header.type == 7:
-    #        # TODO: support string types
-    #        raise NotImplementedError('string types not supported yet')
-    #    nbytes = np.typeDict[_dtypes[header.type]](0).nbytes * header.elementCount
-    #
-    try:
-        info = get_typeInfo(pvname)
-    except HTTPError:
-        print('No Type Info')
-        data = request_data(pvname, t0, t0, dtype='firstSample')
-        header, values, secs, nanos = get_data(data, return_type='raw')
-        print(header)
-        if header.type == 0 or header.type == 7:
-            # TODO: support string types
-            raise NotImplementedError('string types not supported yet')
-        nbytes = np.typeDict[_dtypes[header.type]](
-            0).nbytes * header.elementCount
     else:
-        count = int(info['elementCount'])
-        dbrtype = info['DBRType'].split('_')[2]
-        #print(dbrtype)
-        if dbrtype in ['STRING']:
-            # TODO: support string types
-            raise NotImplementedError('string types not supported yet')
-        else:
-            nbytes = _dsize[_dbrtypes[dbrtype]] * count
-            #print(count,nbytes)
-
-    data = request_data(pvname, t0, t1, dtype='ncount')
-    header, values, secs, nanos = get_data(data, return_type='raw')
-    ncount = values[0]
-    return (ncount, nbytes)
+        raise AssertionError('dtype {} unknown'.format(dtype))
 
 
 def read_header(line):
@@ -160,7 +80,8 @@ def read_sequence(seq):
 
 
 @lru_cache(maxsize=64)
-def get_data(data, *, return_type='pandas', time_format='timestamp', padding=False, t_start=None, t_stop=None):
+def get_data(data, *, return_type='pandas', time_format='timestamp',
+             padding=False, t_start=None, t_stop=None):
     #print("get_data.cache_info: {}".format(request_data.cache_info()))
     """Parses HTTP/PB data buffer
 
@@ -171,7 +92,7 @@ def get_data(data, *, return_type='pandas', time_format='timestamp', padding=Fal
         time_format (str, optional) : requested time format (raw, timestamp, datetime). Defaults to timestamp
         padding (str, optional) : restrict timestamp to requested time range (cuts first entry and adds dummy last entry)
 
-    The following return type is supported
+    The following return types are supported
         'pandas'
             pandas DataFrame
 
@@ -196,7 +117,6 @@ def get_data(data, *, return_type='pandas', time_format='timestamp', padding=Fal
 
         with open('data.pb','rb') as f:
             header, values, seconds, nanos = get_data(f.read(), return_type='raw')
-
     """
 
     res = []
@@ -212,10 +132,11 @@ def get_data(data, *, return_type='pandas', time_format='timestamp', padding=Fal
             header = chunk.header
             years.extend(chunk.header.year *
                          np.ones(len(chunk.value[0]), dtype=np.int))
-            #print(chunk.header)
-            #print('found data:',len(chunk.value[0]))
-        #else:
-        #    print('no data')
+            logger.debug(chunk.header)
+            # print('found data:',len(chunk.value[0]))
+        else:
+            pass
+        #    logger.debug('no data')
 
     # if single chunk with data, return here
     if len(res) == 0:
@@ -224,11 +145,11 @@ def get_data(data, *, return_type='pandas', time_format='timestamp', padding=Fal
     elif len(res) == 1:
         values, secs, nanos = res[0]
         years = years[0] * np.ones(len(secs), dtype=np.int)
-        #print('One Chunk Only')
-        #print('chunk.header.year = ',chunk.header.year)
+        # print('One Chunk Only')
+        # print('chunk.header.year = ',chunk.header.year)
     else:
         # if multible chunks, combine data and return
-        #print("{} chunks found".format(len(res)))
+        # print("{} chunks found".format(len(res)))
         values = np.concatenate([r[0] for r in res])
         secs = np.concatenate([r[1] for r in res])
         nanos = np.concatenate([r[2] for r in res])
@@ -280,3 +201,71 @@ def get_data(data, *, return_type='pandas', time_format='timestamp', padding=Fal
         return df
     else:  # return_type=='raw'
         return (header, values, secs, nanos)
+
+
+class Archiver(ArchiverBasis):
+    '''Access implemented with cython and protoc compiler
+    '''
+    def getData(self, pvname, *, t0, t1, **kwargs):
+        fmt = self.data_url_fmt
+        url = fmt.format(format='raw', var=quote(pvname),
+                         t0=quote(t0), t1=quote(t1))
+        try:
+            f = urlopen(url)
+        except Exception as ex:
+            logger.error('Failed to open url {}: reason {}', url, ex)
+            raise ex
+
+        x0 = dateutil.parser.isoparse(t0).astimezone(dateutil.tz.tzlocal())
+        x1 = dateutil.parser.isoparse(t1).astimezone(dateutil.tz.tzlocal())
+        return get_data(f.read(), t_start=x0, t_stop=x1, **kwargs)
+
+    @lru_cache(maxsize=64)
+    def requestData(self, pvname, *, t0, t1,  dtype='raw'):
+        #print("request_data.cache_info: {}".format(request_data.cache_info()))
+        try:
+            logger.info("request_data({}...)".format(get_url()))
+            request = get_url().format(format='raw',
+                                       var=dquote(pvname, dtype),
+                                       t0=quote(t0),
+                                       t1=quote(t1))
+            f = urlopen(request)
+            return f.read()
+        except Exception as e:
+            logger.error('Failed to handle request {} reason {}'.format(request, e))
+        raise e
+
+
+    def guessSize(self, vname, t0, t1):
+
+        try:
+            info = self.getTypeInfo(pvname)
+            has_type_info = True
+        except HTTPError:
+            logger.info('No Type Info')
+            has_type_info = False
+
+        if not has_type_info:
+            data = self.requestData(pvname, t0, t0, dtype='firstSample')
+            header, values, secs, nanos = get_data(data, return_type='raw')
+            logger.debug(header)
+            if header.type == 0 or header.type == 7:
+                # TODO: support string types
+                raise NotImplementedError('string types not supported yet')
+            nbytes = np.typeDict[_dtypes[header.type]](0).nbytes
+            nbytes *= header.elementCount
+        else:
+            count = int(info['elementCount'])
+            dbrtype = info['DBRType'].split('_')[2]
+            #print(dbrtype)
+            if dbrtype in ['STRING']:
+                # TODO: support string types
+                raise NotImplementedError('string types not supported yet')
+            else:
+                nbytes = _dsize[_dbrtypes[dbrtype]] * count
+                #print(count,nbytes)
+
+        data = self.requestData(pvname, t0, t1, dtype='ncount')
+        header, values, secs, nanos = get_data(data, return_type='raw')
+        ncount = values[0]
+        return (ncount, nbytes)

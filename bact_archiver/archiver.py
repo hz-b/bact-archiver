@@ -1,23 +1,73 @@
-"""Access to the epics archiver appliance
+'''Access to the epics archiver appliance
 
 Typical usage:
      * Download package bact-archiver-local
      * Edit the archiver.cfg package there to reflect your installation
      * Installing this package will automatically install this package
-"""
+'''
 
-from .config import archiver_configurations
+from abc import ABCMeta, abstractmethod, abstractproperty
+import json
 import logging
-import sys
+from urllib.request import urlopen, quote
+
 
 logger = logging.getLogger('bact-archiver')
 
 
-class Archiver:
+class ArchiverInterface(metaclass=ABCMeta):
+    '''Archiver interface definition
+    '''
+    @abstractproperty
+    def name(self):
+        'Name of the archiver'
+
+    @abstractproperty
+    def description(self):
+        'Description of the archiver'
+
+    @abstractmethod
+    def getData(self, var, * t0, t1, **kws):
+        """Get archiver data for single EPICS variable in given time frame.
+
+        Args:
+            t0: start time (ISO 8601 format)
+            t1: end time (ISO 8601 format)
+            **kws: see :func:`get_data`
+
+        Returns:
+            tuple of numpy arrays or pandas.DataFrame see :func:`get_data`
+
+        Valid ISO 8601 time formats are:
+
+         * 2017-09-01T00:02:00Z
+         * 2017-09-01T00:02:00.000Z
+         * 2017-09-01T00:00:00+02
+         * 2017-09-01T00:00:00+0200
+         * 2017-09-01T00:00:00+02:00
+         * 2017-09-01T00:00:00.000+02:00
+
+        see [ISO8601]_
+
+        Example::
+
+            df = archiver.getData('TOPUPCC:rdCur', '2017-10-02T21:00:00Z', '2017-10-02T21:00:00Z', return_type='pandas', time_format='datetime')
+            print(df.meta['header'])
+            plot(df.index, df.values.flatten())
+        """
+
+    # def __call__(self, t0, t1, **kwargs):
+    #    "I am not supporting to implement this method"
+    #    return self.getData(t0, t1, **kwargs)
+
+
+class ArchiverBasis(ArchiverInterface):
     '''
 
     Warning:
         Work in progress
+
+    Used for the python or the carchiver
     '''
     def __init__(self, *, config):
         self.config = config
@@ -30,36 +80,81 @@ class Archiver:
     def description(self):
         return self.config.description
 
+    @property
+    def data_url_fmt(self):
+        url = self.config.retrieval_url
+        url += "/data/getData.{format}?pv={var}&from={t0}&to={t1}&ca_how=0"
+        return url
+
+    @property
+    def bpl_url_fmt(self):
+        '''
+
+        Todo: better naming?
+        '''
+        url = self.config.retrieval_url
+        url += '/bpl/{cmd}{opt}'
+        return url
+
+    def askAppliance(self, cmd, **kwargs):
+        '''
+        '''
+        # cmds :
+        opts = ''
+        opt = '?{}={}'
+        for k, v in kwargs.items():
+            opts += opt.format(k, v)
+            opt = '&{}={}'
+
+        fmt = self.bpl_url_fmt
+        url = fmt.format(cmd=cmd, opt=opts)
+        fmt = 'Asking archiver %s  using url %s'
+
+        logger.info(fmt, self.name, url)
+        try:
+            request = urlopen(url)
+        except Exception as ex:
+            logger.error(fmt + ' Reason %s', self.name, url, ex)
+            raise ex
+
+        data = json.loads(request.read().decode('UTF-8'))
+        return data
+
+    def getAllPVs(self):
+        return self.getMatchingPVs()
+
+    def getMatchingPVs(self, pv="*"):
+        return self.askAppliance('getMatchingPVs', pv=pv)
+
+    def getTypeInfo(self, pv):
+        return self.askAppliance('getMetadata', pv=pv)
+
     def __repr__(self):
         args_text = 'config={}'.format(self.config)
         txt = "{}({}, {})".format(self.__class__.__name__, self.name,
-                              args_text)
+                                  args_text)
         return txt
 
+    def saveBPRaw(self, pvname, *,  t0, t1, fname='test.pb'):
+        fmt = self.data_url_fmt
+        url = fmt.format(format='raw', var=quote(pvname),
+                         t0=quote(t0), t1=quote(t1))
+        f = urlopen(url)
 
-def add_archivers_to_module(mod_name, configs):
-    '''
-    Args:
-        mod_name: the name of the module to which the archivers
-                  should be added.
-        configs:  sequencee of archiver configurations
-
-    each archiver configuration should conform to the interface
-    defined by
-    :class:`bact_archiver.config,ArchiverConfigurationInterface`
-    '''
-
-    t_mod = sys.modules[mod_name]
-    logger.info('Adding archivers %s to mod %s', list(configs.keys()), t_mod)
-
-    archivers = {tup[0]: Archiver(config=tup[1]) for tup in configs.items()}
-    setattr(t_mod, 'archivers', archivers)
-    for name, ac in archivers.items():
-        setattr(t_mod, name, ac)
+        with open(fname, 'wb') as fout:
+            fout.write(f.read())
 
 
-def register_archivers(module_name):
-    '''Register the archivers to the module
-    '''
-    configs = archiver_configurations(module_name)
-    add_archivers_to_module(module_name, configs)
+def save_hdf5(data, *, fname=None):
+    import h5py
+    chunk = data.chunks[1]
+    values = data.values
+
+    with h5py.File(fname, 'w') as f:
+        group = f.create_group(chunk.header.pvname)
+        group.create_dataset(
+            'value', data=values['value'], compression='gzip', shuffle=True)
+        group.create_dataset(
+            'sec', data=values['sec'], compression='gzip', shuffle=True)
+        group.create_dataset(
+            'ns', data=values['ns'], compression='gzip', shuffle=True)
