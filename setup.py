@@ -4,7 +4,6 @@
 # Date : 2017, 2020
 
 from cysetuptools import setup
-import setuptools
 import protocol_buffer
 
 cmdclass = dict(build_proto_c=protocol_buffer.GenerateProtocolBuffer)
