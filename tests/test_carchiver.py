@@ -2,7 +2,7 @@ import os
 import unittest
 import logging
 
-from bact_archiver.archiver2 import get_data
+from bact_archiver.pyarchiver import get_data
 from bact_archiver.carchiver import get_data as cget_data
 from common import test_data_dir
 
