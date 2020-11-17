@@ -38,8 +38,9 @@ class LoadConfig(unittest.TestCase):
         '''
 
         import bact_archiver.archiver
+        import bact_archiver.register
         configs = bact_archiver.config.archiver_configurations(self.mod_name)
-        bact_archiver.archiver.add_archivers_to_module(self.mod_name, configs)
+        bact_archiver.register.add_archivers_to_module(self.mod_name, configs)
 
     def test020_AutomaticLoadDefault(self):
         import bact_archiver
