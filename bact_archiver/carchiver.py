@@ -7,7 +7,7 @@
 from .epics_event import read_chunk, decode
 from . import epics_event_pb2 as proto
 from .protocol_buffer import (Chunk, dtypes as _dtypes, decoder as _decoder,
-                            dbrtypes as _dbrtypes)
+                              dbrtypes as _dbrtypes, dsize as _dsize)
 from .archiver import ArchiverBasis
 
 from urllib.request import urlopen, quote, HTTPError
@@ -56,10 +56,12 @@ class ApplianceOperators(enum.Enum):
 def dquote(pvname, dtype):
     if dtype == 'raw':
         return quote(pvname)
-    elif dtype in appliance_operators:
-        return quote('{}({})'.format(dtype, pvname))
     else:
-        raise AssertionError('dtype {} unknown'.format(dtype))
+        # Is that name listed
+        ApplianceOperators(dtype)
+        return quote('{}({})'.format(dtype, pvname))
+
+    raise AssertionError('dtype {} unknown'.format(dtype))
 
 
 def read_header(line):
@@ -213,30 +215,32 @@ class Archiver(ArchiverBasis):
         try:
             f = urlopen(url)
         except Exception as ex:
-            logger.error('Failed to open url {}: reason {}', url, ex)
+            logger.error('Failed to open url {}: reason {}'.format(url, ex))
             raise ex
 
+        # Dead code here
         x0 = dateutil.parser.isoparse(t0).astimezone(dateutil.tz.tzlocal())
         x1 = dateutil.parser.isoparse(t1).astimezone(dateutil.tz.tzlocal())
-        return get_data(f.read(), t_start=x0, t_stop=x1, **kwargs)
+        logger.info('Trying to get data for pv %s in interval %s..%s = %s..%s',
+                    pvname, t0, t1, x0, x1)
+        logger.debug('Using url %s', url)
+        return get_data(f.read(), t_start=t0, t_stop=t1, **kwargs)
 
     @lru_cache(maxsize=64)
     def requestData(self, pvname, *, t0, t1,  dtype='raw'):
         #print("request_data.cache_info: {}".format(request_data.cache_info()))
+        fmt = self.data_url_fmt
+        request = fmt.format(format='raw', var=dquote(pvname, dtype),
+                             t0=quote(t0), t1=quote(t1))
+        logger.info("request_data({}...)".format(request))
         try:
-            logger.info("request_data({}...)".format(get_url()))
-            request = get_url().format(format='raw',
-                                       var=dquote(pvname, dtype),
-                                       t0=quote(t0),
-                                       t1=quote(t1))
             f = urlopen(request)
             return f.read()
         except Exception as e:
             logger.error('Failed to handle request {} reason {}'.format(request, e))
         raise e
 
-
-    def guessSize(self, vname, t0, t1):
+    def guessSize(self, pvname, t0, t1):
 
         try:
             info = self.getTypeInfo(pvname)
@@ -246,7 +250,7 @@ class Archiver(ArchiverBasis):
             has_type_info = False
 
         if not has_type_info:
-            data = self.requestData(pvname, t0, t0, dtype='firstSample')
+            data = self.requestData(pvname, t0=t0, t1=t0, dtype='firstSample')
             header, values, secs, nanos = get_data(data, return_type='raw')
             logger.debug(header)
             if header.type == 0 or header.type == 7:
@@ -265,7 +269,7 @@ class Archiver(ArchiverBasis):
                 nbytes = _dsize[_dbrtypes[dbrtype]] * count
                 #print(count,nbytes)
 
-        data = self.requestData(pvname, t0, t1, dtype='ncount')
+        data = self.requestData(pvname, t0=t0, t1=t1, dtype='ncount')
         header, values, secs, nanos = get_data(data, return_type='raw')
         ncount = values[0]
         return (ncount, nbytes)
