@@ -21,6 +21,9 @@ archiver_request_fmt = "%Y-%m-%dT%H:%M:%S.000000Z"
 
 def convert_datetime_to_timestamp(datum):
     '''Convert datetime to string as expected by archiver
+
+    Args:
+        datum: a :class:`datetime.datetime` object
     '''
     try:
         r = datum.strftime(archiver_request_fmt)
@@ -47,8 +50,8 @@ class ArchiverInterface(metaclass=ABCMeta):
         """Get archiver data for single EPICS variable in given time frame.
 
         Args:
-            t0 :                         start time a  :class:`datetime.datetime` object
-            t1 :                         end time a  :class:`datetime.datetime` object
+            t0 :                         start time a :class:`datetime.datetime` object
+            t1 :                         end time a :class:`datetime.datetime` object
 
             return_type (str, optional) : requested data type (pandas|raw).
                                           Defaults to pandas
@@ -62,7 +65,7 @@ class ArchiverInterface(metaclass=ABCMeta):
 
         The following return types are supported
             'pandas'
-                a :class:`pandas DataFrame`
+                a :class:`pandas.DataFrame`
 
             'raw'
                 tuple (header, values, secs, nanos)
@@ -81,8 +84,8 @@ class ArchiverInterface(metaclass=ABCMeta):
 
             t0 = datetime.datetime(2017, 10, 02, 21)
             t1 = datetime.datetime(2017, 10, 02, 21, 5)
-            df = archiver.getData('TOPUPCC:rdCur', to, return_type='pandas',
-                                  time_format='datetime')
+            df = archiver.getData('TOPUPCC:rdCur', t0=t0, t1=t1,
+                                  return_type='pandas', time_format='datetime')
             print(df.meta['header'])
             plot(df.index, df.values.flatten())
         """

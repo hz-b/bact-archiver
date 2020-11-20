@@ -78,7 +78,7 @@ class ArchiverConfiguration(ArchiverConfigurationInterface):
 
 
 def get_config_filename(module_name):
-    '''Get the configuration filename
+    '''Get the configuration filename using pkg_resources
     '''
     requirement = Requirement.parse(module_name)
     filename = resource_filename(requirement, 'config/archiver.cfg')
@@ -87,12 +87,18 @@ def get_config_filename(module_name):
 
 
 def archiver_configurations(module_name):
-    '''
+    '''Generates :class:`ArchiverConfiguration` from configuration file
+
+    Args:
+        module_name : the name of the module containing the archiver
+                      information
 
     Returns:
-       dictonary of archiver configurations
+        dictonary of archiver configurations
 
-    The key 'default' contains the same description as any other archvier
+    Retrieves the filename in question using :func:`get_config_filename`
+    The key 'default' contains the same instance, that will be given by its
+    orginal name
     '''
     filename = get_config_filename(module_name=module_name)
     config = configparser.ConfigParser()

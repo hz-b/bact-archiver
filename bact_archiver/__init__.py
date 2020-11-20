@@ -1,11 +1,18 @@
-"""
+"""Access to archivers: code part
 
-Archivers are loaded:
+As user typically:
 
-   * as soon as the default archiver is accesed
-   * register_archivers is called
+* get the source of bact-archiver-local
+* rename it (e.g. for PSI bact-archiver-psi)
+* edit config/archiver.cfg to reflect your achivers
 
+Install your local package. This will install this package
+in turn. See installation and configuration information in
+packages documentation
 """
 
 from .register import register_archivers
-register_archivers(__name__)
+
+# No archivers here in this package
+# Put this call in your local package
+# register_archivers(__name__)

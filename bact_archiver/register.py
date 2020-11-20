@@ -1,3 +1,5 @@
+'''Support functions for adding archivers to the module
+'''
 import sys
 import logging
 from .config import archiver_configurations
