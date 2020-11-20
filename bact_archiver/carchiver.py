@@ -208,22 +208,17 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
 class Archiver(ArchiverBasis):
     '''Access implemented with cython and protoc compiler
     '''
-    def getData(self, pvname, *, t0, t1, **kwargs):
+    def _getData(self, pvname, *, t0, t1, **kwargs):
         fmt = self.data_url_fmt
         url = fmt.format(format='raw', var=quote(pvname),
                          t0=quote(t0), t1=quote(t1))
+        logger.debug('Using url %s', url)
         try:
             f = urlopen(url)
         except Exception as ex:
             logger.error('Failed to open url {}: reason {}'.format(url, ex))
             raise ex
 
-        # Dead code here
-        x0 = dateutil.parser.isoparse(t0).astimezone(dateutil.tz.tzlocal())
-        x1 = dateutil.parser.isoparse(t1).astimezone(dateutil.tz.tzlocal())
-        logger.info('Trying to get data for pv %s in interval %s..%s = %s..%s',
-                    pvname, t0, t1, x0, x1)
-        logger.debug('Using url %s', url)
         return get_data(f.read(), t_start=t0, t_stop=t1, **kwargs)
 
     @lru_cache(maxsize=64)

@@ -15,6 +15,16 @@ from urllib.request import urlopen, quote
 logger = logging.getLogger('bact-archiver')
 
 
+#: The format as requested by the archiver
+archiver_request_fmt = "%Y-%m-%dT%H:%M:%S.000000Z"
+
+
+def convert_datetime_to_timestamp(datum):
+    '''Convert datetime to string as expected by archiver
+    '''
+    return datum.strftime(archiver_request_fmt)
+
+
 class ArchiverInterface(metaclass=ABCMeta):
     '''Archiver interface definition
     '''
@@ -31,27 +41,42 @@ class ArchiverInterface(metaclass=ABCMeta):
         """Get archiver data for single EPICS variable in given time frame.
 
         Args:
-            t0: start time (ISO 8601 format)
-            t1: end time (ISO 8601 format)
-            **kws: see :func:`get_data`
+            t0 :                         start time a  :class:`datetime.datetime` object
+            t1 :                         end time a  :class:`datetime.datetime` object
+
+            return_type (str, optional) : requested data type (pandas|raw).
+                                          Defaults to pandas
+            time_format (str, optional) : requested time format (raw, timestamp, datetime).
+                                          Defaults to timestamp
+            padding (str, optional) :    restrict timestamp to requested time range
+                                         (cuts first entry and adds dummy last entry)
 
         Returns:
             tuple of numpy arrays or pandas.DataFrame see :func:`get_data`
 
-        Valid ISO 8601 time formats are:
+        The following return types are supported
+            'pandas'
+                a :class:`pandas DataFrame`
 
-         * 2017-09-01T00:02:00Z
-         * 2017-09-01T00:02:00.000Z
-         * 2017-09-01T00:00:00+02
-         * 2017-09-01T00:00:00+0200
-         * 2017-09-01T00:00:00+02:00
-         * 2017-09-01T00:00:00.000+02:00
+            'raw'
+                tuple (header, values, secs, nanos)
 
-        see [ISO8601]_
+        The following time formats are supported:
+            'raw'
+               seconds (since beginning of year), nanoseconds
+
+            'timestamp'
+               seconds since 01.01.1970 (default)
+
+            'datetime'
+               datetime object ('pandas' only)
 
         Example::
 
-            df = archiver.getData('TOPUPCC:rdCur', '2017-10-02T21:00:00Z', '2017-10-02T21:00:00Z', return_type='pandas', time_format='datetime')
+            t0 = datetime.datetime(2017, 10, 02, 21)
+            t1 = datetime.datetime(2017, 10, 02, 21, 5)
+            df = archiver.getData('TOPUPCC:rdCur', to, return_type='pandas',
+                                  time_format='datetime')
             print(df.meta['header'])
             plot(df.index, df.values.flatten())
         """
@@ -95,6 +120,14 @@ class ArchiverBasis(ArchiverInterface):
         url = self.config.retrieval_url
         url += '/bpl/{cmd}{opt}'
         return url
+
+    def getData(self, pvname, * t0, t1, **kws):
+        t0_str = convert_datetime_to_timestamp(t0)
+        t1_str = convert_datetime_to_timestamp(t1)
+        fmt = 'Trying to get data for pv %s in interval %s..%s = %s..%s',
+        logger.info(fmt, pvname, t0, t1, t0_str, t1_str)
+
+        return self._getData(pvname, t0=t0_str, t1=t1_str, **kws)
 
     def askAppliance(self, cmd, **kwargs):
         '''

@@ -14,7 +14,7 @@ import numpy as np
 
 
 class Archiver(ArchiverBasis):
-    def getData(self, pvname, *, t0, t1, **kwargs):
+    def _getData(self, pvname, *, t0, t1, **kwargs):
         fmt = self.data_url_fmt
         url = fmt.format(format='raw', var=quote(pvname),
                          t0=quote(t0), t1=quote(t1))
