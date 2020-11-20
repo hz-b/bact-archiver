@@ -22,7 +22,13 @@ archiver_request_fmt = "%Y-%m-%dT%H:%M:%S.000000Z"
 def convert_datetime_to_timestamp(datum):
     '''Convert datetime to string as expected by archiver
     '''
-    return datum.strftime(archiver_request_fmt)
+    try:
+        r = datum.strftime(archiver_request_fmt)
+    except Exception:
+        logger.error('Failed converting %s of type %s to timestamp string',
+                     datum, type(datum))
+        raise
+    return r
 
 
 class ArchiverInterface(metaclass=ABCMeta):
@@ -80,6 +86,7 @@ class ArchiverInterface(metaclass=ABCMeta):
             print(df.meta['header'])
             plot(df.index, df.values.flatten())
         """
+        raise NotImplementedError('Implement in derived class')
 
     # def __call__(self, t0, t1, **kwargs):
     #    "I am not supporting to implement this method"
@@ -121,7 +128,7 @@ class ArchiverBasis(ArchiverInterface):
         url += '/bpl/{cmd}{opt}'
         return url
 
-    def getData(self, pvname, * t0, t1, **kws):
+    def getData(self, pvname, *, t0, t1, **kws):
         t0_str = convert_datetime_to_timestamp(t0)
         t1_str = convert_datetime_to_timestamp(t1)
         fmt = 'Trying to get data for pv %s in interval %s..%s = %s..%s',
