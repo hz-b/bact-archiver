@@ -92,23 +92,5 @@ class ArchiverClientTest(unittest.TestCase):
                         exp_count=400)
 
 
-class CythonArchiverClientTest(ArchiverClientTest):
-    """Test cython base archiver client
-    """
-
-    def run_decode(self, *, fname=None, **kw):
-        data = self.read(fname)
-
-        data = cget_data(data)
-        header = data.meta['header']
-        values = data.values
-        log.debug('Header: %s', header)
-
-        self.assertEqual(header.type, kw['exp_type'])
-        self.assertEqual(len(values), kw['exp_len'])
-
-        self.assertEqual(header.elementCount, kw.get('exp_count', 1))
-
-
 if __name__ == "__main__":
     unittest.main()
