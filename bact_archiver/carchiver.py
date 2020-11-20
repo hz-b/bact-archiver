@@ -8,7 +8,7 @@ from .epics_event import read_chunk, decode
 from . import epics_event_pb2 as proto
 from .protocol_buffer import (Chunk, dtypes as _dtypes, decoder as _decoder,
                               dbrtypes as _dbrtypes, dsize as _dsize)
-from .archiver import ArchiverBasis
+from .archiver import ArchiverBasis, convert_datetime_to_timestamp
 
 from urllib.request import urlopen, quote, HTTPError
 from functools import lru_cache
@@ -222,7 +222,7 @@ class Archiver(ArchiverBasis):
         return get_data(f.read(), t_start=t0, t_stop=t1, **kwargs)
 
     @lru_cache(maxsize=64)
-    def requestData(self, pvname, *, t0, t1,  dtype='raw'):
+    def _requestData(self, pvname, *, t0, t1,  dtype='raw'):
         #print("request_data.cache_info: {}".format(request_data.cache_info()))
         fmt = self.data_url_fmt
         request = fmt.format(format='raw', var=dquote(pvname, dtype),
@@ -234,6 +234,13 @@ class Archiver(ArchiverBasis):
         except Exception as e:
             logger.error('Failed to handle request {} reason {}'.format(request, e))
         raise e
+
+    def requestData(self, pvname, *, t0, t1, dtype='raw'):
+        '''
+        '''
+        t0_str = convert_datetime_to_timestamp(t0)
+        t1_str = convert_datetime_to_timestamp(t1)
+        return self._requestData(pvname, t0=t0_str, t1=t1_str, dtype=dtype)
 
     def guessSize(self, pvname, t0, t1):
 
