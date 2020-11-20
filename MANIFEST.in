@@ -7,3 +7,6 @@ include proto_gen/*
 include bact_archiver/*.py
 # configuration files
 include config/*.cfg
+# documentation files
+doc/conf.py
+doc/*.rst
