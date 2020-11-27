@@ -7,4 +7,8 @@ from cysetuptools import setup
 import protocol_buffer
 
 cmdclass = dict(build_proto_c=protocol_buffer.GenerateProtocolBuffer)
-setup(cmdclass=cmdclass)
+setup(cmdclass=cmdclass,
+      author = "Andreas Schälicke, Pierre Schnizer",
+      author_email = ("andreas.schälicke@helmholtz-berlin.de, "
+                      "pierre.schnizer@helmholtz-berlin.de")
+)
