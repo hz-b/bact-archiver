@@ -20,7 +20,7 @@ import datetime
 import dateutil.parser
 import dateutil.tz
 import enum
-
+import types
 import logging
 
 logger = logging.getLogger('bact-archiver')
@@ -173,9 +173,9 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
                 df.columns = ['val']
 
             # Code of old versin
-            df = df.tz_localize('UTC').tz_convert(dateutil.tz.tzlocal())
+            # df = df.tz_localize('UTC').tz_convert(dateutil.tz.tzlocal())
             # python3.7 pandas 0.24.2
-            # df = df.tz_convert(dateutil.tz.tzlocal())
+            df = df.tz_convert(dateutil.tz.tzlocal())
 
             if padding:
                 if t_start is not None and t_stop is not None and len(df.columns) == 1:
@@ -198,9 +198,14 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
             t = pd.Series(offset + secs + 1.e-9 * nanos, name='timestamp')
             df = pd.DataFrame(values, index=t)
 
-        df.meta = {'header': header}
+        else:
+            raise ValueError('Unknown time format: {}'.format(time_format))
+
+        df.meta = types.SimpleNamespace()
+        df.meta.header = header
 
         return df
+
     else:  # return_type=='raw'
         return (header, values, secs, nanos)
 
