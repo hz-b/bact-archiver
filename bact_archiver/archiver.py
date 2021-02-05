@@ -145,6 +145,9 @@ class ArchiverBasis(ArchiverInterface):
         # cmds :
         opts = ''
         opt = '?{}={}'
+        # Disable server-side limit of 500 entries
+        if not 'limit' in kw.keys():
+            kw['limit'] = '-1'
         for k, v in kwargs.items():
             opts += opt.format(k, v)
             opt = '&{}={}'
