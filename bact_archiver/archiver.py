@@ -9,10 +9,12 @@ Typical usage:
 from abc import ABCMeta, abstractmethod, abstractproperty
 import json
 import logging
+import pytz
 from urllib.request import urlopen, quote
 
-
 logger = logging.getLogger('bact-archiver')
+
+_utc = pytz.timezone('UTC')
 
 
 #: The format as requested by the archiver
@@ -57,8 +59,12 @@ class ArchiverInterface(metaclass=ABCMeta):
                                           Defaults to pandas
             time_format (str, optional) : requested time format (raw, timestamp, datetime).
                                           Defaults to timestamp
-            padding (str, optional) :    restrict timestamp to requested time range
-                                         (cuts first entry and adds dummy last entry)
+            padding (str, optional) :     restrict timestamp to requested time range
+                                          (cuts first entry and adds dummy last entry)
+
+            timezone (:class:`datetime.tzinfo`, optional): for pandas dataframes, use given
+                                          tzinfo to translate the dataframe to. If none is given,
+                                          translate it to the local timezone
 
         Returns:
             tuple of numpy arrays or pandas.DataFrame see :func:`get_data`
@@ -132,6 +138,9 @@ class ArchiverBasis(ArchiverInterface):
         return url
 
     def getData(self, pvname, *, t0, t1, **kws):
+
+        t0 = t0.astimezone(_utc)
+        t1 = t1.astimezone(_utc)
         t0_str = convert_datetime_to_timestamp(t0)
         t1_str = convert_datetime_to_timestamp(t1)
         fmt = 'Trying to get data for pv %s in interval %s..%s = %s..%s',

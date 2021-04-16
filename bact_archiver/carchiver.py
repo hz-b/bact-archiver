@@ -82,8 +82,35 @@ def read_sequence(seq):
 
 
 @lru_cache(maxsize=64)
+def get_data_from_archiver(data):
+    '''
+
+    Singled out to be cached ..
+    '''
+    res = []
+    years = []
+    # ignore last '\n' and split into chunks
+    for seq in data[:-1].split(b'\n\n'):
+        chunk = read_sequence(seq)
+        # logger.debug('chunk header "{}"'.format(chunk.header))
+
+        if chunk.value is not None:
+            # logger.debug(chunk.value)
+            res.append(chunk.value)
+            header = chunk.header
+            years.extend(chunk.header.year *
+                         np.ones(len(chunk.value[0]), dtype=np.int))
+            logger.debug(chunk.header)
+            # print('found data:',len(chunk.value[0]))
+        else:
+            pass
+            # logger.debug('no data')
+
+    return res, years, header
+
+
 def get_data(data, *, return_type='pandas', time_format='timestamp',
-             padding=False, t_start=None, t_stop=None):
+             padding=False, t_start=None, t_stop=None, timezone=None):
     #print("get_data.cache_info: {}".format(request_data.cache_info()))
     """Parses HTTP/PB data buffer
 
@@ -121,24 +148,8 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
             header, values, seconds, nanos = get_data(f.read(), return_type='raw')
     """
 
-    res = []
-    years = []
-    # ignore last '\n' and split into chunks
-    for seq in data[:-1].split(b'\n\n'):
-        chunk = read_sequence(seq)
-        # logger.debug('chunk header "{}"'.format(chunk.header))
 
-        if chunk.value is not None:
-            # logger.debug(chunk.value)
-            res.append(chunk.value)
-            header = chunk.header
-            years.extend(chunk.header.year *
-                         np.ones(len(chunk.value[0]), dtype=np.int))
-            logger.debug(chunk.header)
-            # print('found data:',len(chunk.value[0]))
-        else:
-            pass
-        #    logger.debug('no data')
+    res, years, header = get_data_from_archiver(data)
 
     # if single chunk with data, return here
     if len(res) == 0:
@@ -175,7 +186,9 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
             # Code of old versin
             # df = df.tz_localize('UTC').tz_convert(dateutil.tz.tzlocal())
             # python3.7 pandas 0.24.2
-            df = df.tz_convert(dateutil.tz.tzlocal())
+            if timezone is None:
+                timezone = dateutil.tz.tzlocal()
+            df = df.tz_convert(timezone)
 
             if padding:
                 if t_start is not None and t_stop is not None and len(df.columns) == 1:
