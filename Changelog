@@ -1,0 +1,17 @@
+2021-04-16 Pierre Schnizer <pierre.schnizer@helmholtz-berlin.de>
+
+	* archiver.getData: t0, t1 now required to be timezone aware
+	Archiver appliance processes timestamps in UTC. This conversion
+	is now handled internally
+
+2021-02-05 Felix M"oller <kontakt@felix-moeller.net>
+
+	* archiver.askAppliance: removed limit of response for server request
+	use key word argument limits to limit the response of the server
+
+2020-12-17 Pierre Schnizer <pierre.schnizer@helmholtz-berlin.de>
+
+	* archiver.getData: metadata now compliant with pandas 1.0
+	when getData returns a dataframe, df.meta is now a typing.SimpleNameSpace
+	Header information are now stored in df.meta.header
+	previously df.meta['header']
