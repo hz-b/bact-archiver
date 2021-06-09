@@ -8,9 +8,13 @@
 from .archiver import ArchiverBasis
 from .protocol_buffer import Chunk, dtypes as _dtypes, decoder as _decoder
 from . import epics_event_pb2 as proto
+from .errors import ArchiverReturnedNoData
 
 from urllib.request import urlopen, quote
 import numpy as np
+import logging
+
+logger = logging.getLogger('bact_archiver')
 
 
 class Archiver(ArchiverBasis):
@@ -19,12 +23,19 @@ class Archiver(ArchiverBasis):
         url = fmt.format(format='raw', var=quote(pvname),
                          t0=quote(t0), t1=quote(t1))
         f = urlopen(url)
-        data = get_data(f.read())
+        try:
+            data = get_data(f.read())
+        except Exception as exc:
+            fmt = 'Data retrieval using url {} raised exception {}'
+            logger.error(fmt.format(url, exc))
+            raise
+
         return data
 
 
 def get_data(data):
     chunks = []
+
     for seq in data.split(b'\n\n'):
         lines = seq.splitlines()
 
@@ -46,8 +57,16 @@ def get_data(data):
                 return [v
                         for v in event.val], event.secondsintoyear, event.nano
 
-            chunk.values = np.array(
-                [parse_vec(l) for l in lines],
+            # Not sure if the same applied for scalars. So for now I put it here
+            if len(lines) == 0:
+                fmt = 'Archiver did not return data. header = %s'
+                logger.info(fmt, header)
+                # raise ArchiverReturnedNoData(txt)
+                chunk.values = None
+                continue
+
+            tmp = [parse_vec(l) for l in lines]
+            chunk.values = np.array(tmp,
                 dtype=[('value', dtype, (header.elementCount, )),
                        ('sec', 'u4'), ('ns', 'u4')])
         else:
@@ -62,4 +81,8 @@ def get_data(data):
                 [parse(l) for l in lines],
                 dtype=[('value', dtype), ('sec', 'u4'), ('ns', 'u4')])
 
-    return header, np.concatenate([c.values for c in chunks])
+    # Todo:
+    #     Check if all values were received or if one is misisng
+    vals = [c.values for c in chunks if c.values is not None]
+    arr =  np.concatenate(vals)
+    return header, arr
