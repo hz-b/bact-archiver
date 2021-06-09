@@ -8,9 +8,13 @@
 from .archiver import ArchiverBasis
 from .protocol_buffer import Chunk, dtypes as _dtypes, decoder as _decoder
 from . import epics_event_pb2 as proto
+from .errors import ArchiverReturnedNoData
 
 from urllib.request import urlopen, quote
 import numpy as np
+import logging
+
+logger = logging.getLogger('bact_archiver')
 
 
 class Archiver(ArchiverBasis):
@@ -19,7 +23,13 @@ class Archiver(ArchiverBasis):
         url = fmt.format(format='raw', var=quote(pvname),
                          t0=quote(t0), t1=quote(t1))
         f = urlopen(url)
-        data = get_data(f.read())
+        try:
+            data = get_data(f.read())
+        except Exception as exc:
+            fmt = 'Data retrieval using url {} raised exception {}'
+            log.error(fmt.format(url, exc))
+            raise
+
         return data
 
 
@@ -45,6 +55,11 @@ def get_data(data):
                         b'\x1b\x03', b'\x0d').replace(b'\x1b\x01', b'\x1b'))
                 return [v
                         for v in event.val], event.secondsintoyear, event.nano
+
+            # Not sure if the same applied for scalars. So for now I put it here
+            if len(lines) == 0:
+                txt = 'Archiver did not return data. header = {}'.format(header)
+                raise ArchiverReturnedNoData(txt)
 
             chunk.values = np.array(
                 [parse_vec(l) for l in lines],
