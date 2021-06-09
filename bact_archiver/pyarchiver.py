@@ -27,7 +27,11 @@ class Archiver(ArchiverBasis):
             data = get_data(f.read())
         except Exception as exc:
             fmt = 'Data retrieval using url {} raised exception {}'
+<<<<<<< HEAD
             logger.error(fmt.format(url, exc))
+=======
+            log.error(fmt.format(url, exc))
+>>>>>>> 0ba4c6f886354d759db17ce13134308017f5a180
             raise
 
         return data
@@ -59,6 +63,7 @@ def get_data(data):
 
             # Not sure if the same applied for scalars. So for now I put it here
             if len(lines) == 0:
+<<<<<<< HEAD
                 fmt = 'Archiver did not return data. header = %s'
                 logger.info(fmt, header)
                 # raise ArchiverReturnedNoData(txt)
@@ -67,6 +72,13 @@ def get_data(data):
 
             tmp = [parse_vec(l) for l in lines]
             chunk.values = np.array(tmp,
+=======
+                txt = 'Archiver did not return data. header = {}'.format(header)
+                raise ArchiverReturnedNoData(txt)
+
+            chunk.values = np.array(
+                [parse_vec(l) for l in lines],
+>>>>>>> 0ba4c6f886354d759db17ce13134308017f5a180
                 dtype=[('value', dtype, (header.elementCount, )),
                        ('sec', 'u4'), ('ns', 'u4')])
         else:
