@@ -33,7 +33,8 @@ conda install protobuf
 on native Linux/Debian installations use
 
 ```bash
-sudo apt install libprotobuf-dev protobuf-compiler python3-protobuf
+sudo apt install g++ libprotobuf-dev protobuf-compiler python3-protobuf \
+                 python3-setuptools python3-wheel cython3
 ```
 
 
@@ -48,6 +49,3 @@ In case the google protocol buffer include files are not found automatically, yo
 ```
 export CFLAGS="-I /opt/anaconda3/include"
 ```
-
-
-
