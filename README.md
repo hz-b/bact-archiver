@@ -34,7 +34,8 @@ on native Linux/Debian installations use
 
 ```bash
 sudo apt install g++ libprotobuf-dev protobuf-compiler python3-protobuf \
-                 python3-setuptools python3-wheel cython3
+                 python3-setuptools python3-wheel cython3 \
+                 python3-numpy
 ```
 
 
