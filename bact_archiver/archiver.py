@@ -5,15 +5,13 @@ Typical usage:
      * Edit the archiver.cfg package there to reflect your installation
      * Installing this package will automatically install this package
 '''
-
+import datetime
 from abc import ABCMeta, abstractmethod, abstractproperty
 import json
 import logging
 from urllib.request import urlopen, quote
-
-
+from .config import ArchiverConfigurationInterface
 logger = logging.getLogger('bact-archiver')
-
 
 #: The format as requested by the archiver
 archiver_request_fmt = "%Y-%m-%dT%H:%M:%S.000000Z"
@@ -37,6 +35,7 @@ def convert_datetime_to_timestamp(datum):
 class ArchiverInterface(metaclass=ABCMeta):
     '''Archiver interface definition
     '''
+
     @abstractproperty
     def name(self):
         'Name of the archiver'
@@ -46,7 +45,7 @@ class ArchiverInterface(metaclass=ABCMeta):
         'Description of the archiver'
 
     @abstractmethod
-    def getData(self, var, * t0, t1, **kws):
+    def getData(self, var, *t0, t1, **kws):
         """Get archiver data for single EPICS variable in given time frame.
 
         Args:
@@ -104,7 +103,8 @@ class ArchiverBasis(ArchiverInterface):
 
     Used for the python or the carchiver
     '''
-    def __init__(self, *, config):
+
+    def __init__(self, *, config : ArchiverConfigurationInterface):
         self.config = config
 
     @property
@@ -131,7 +131,7 @@ class ArchiverBasis(ArchiverInterface):
         url += '/bpl/{cmd}{opt}'
         return url
 
-    def getData(self, pvname, *, t0, t1, **kws):
+    def getData(self, pvname : str, *, t0: datetime.datetime, t1: datetime.datetime, **kws):
         t0_str = convert_datetime_to_timestamp(t0)
         t1_str = convert_datetime_to_timestamp(t1)
         fmt = 'Trying to get data for pv %s in interval %s..%s = %s..%s',
@@ -139,7 +139,7 @@ class ArchiverBasis(ArchiverInterface):
 
         return self._getData(pvname, t0=t0_str, t1=t1_str, **kws)
 
-    def askAppliance(self, cmd, **kwargs):
+    def askAppliance(self, cmd: str, **kwargs):
         '''
         '''
         # cmds :
@@ -166,10 +166,10 @@ class ArchiverBasis(ArchiverInterface):
     def getAllPVs(self):
         return self.getMatchingPVs()
 
-    def getMatchingPVs(self, pv="*"):
+    def getMatchingPVs(self, pv: str="*"):
         return self.askAppliance('getMatchingPVs', pv=pv)
 
-    def getTypeInfo(self, pv):
+    def getTypeInfo(self, pv: str):
         return self.askAppliance('getMetadata', pv=pv)
 
     def __repr__(self):
@@ -178,7 +178,7 @@ class ArchiverBasis(ArchiverInterface):
                                   args_text)
         return txt
 
-    def saveBPRaw(self, pvname, *,  t0, t1, fname='test.pb'):
+    def saveBPRaw(self, pvname: str, *, t0 : datetime.datetime, t1:datetime.datetime, fname='test.pb'):
         fmt = self.data_url_fmt
         url = fmt.format(format='raw', var=quote(pvname),
                          t0=quote(t0), t1=quote(t1))
