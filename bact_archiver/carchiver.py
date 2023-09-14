@@ -22,6 +22,7 @@ import dateutil.tz
 import enum
 import types
 import logging
+from .utils import convert_data_time
 
 logger = logging.getLogger('bact-archiver')
 
@@ -169,26 +170,10 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
 
     if return_type == 'pandas':
         if time_format == 'datetime':
-            # print('creating dataframe for year', header.year)
-            df = pd.DataFrame({
-                'year': years,
-                'month': 1,
-                'day': 1,
-                'second': secs,
-                'ns': nanos
-            })
-            dt = pd.to_datetime(df, utc=True)
-            dt.name = 'datetime'
+            dt = convert_data_time(years=years,secs=secs, nsecs=nanos)
             df = pd.DataFrame(values, index=dt)
             if len(df.columns) == 1:
                 df.columns = ['val']
-
-            # Code of old versin
-            # df = df.tz_localize('UTC').tz_convert(dateutil.tz.tzlocal())
-            # python3.7 pandas 0.24.2
-            if timezone is None:
-                timezone = dateutil.tz.tzlocal()
-            df = df.tz_convert(timezone)
 
             if padding:
                 if t_start is not None and t_stop is not None and len(df.columns) == 1:
