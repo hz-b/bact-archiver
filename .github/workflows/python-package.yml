@@ -22,8 +22,7 @@ jobs:
          # try to cache package install
     - uses: ConorMacBride/install-package@v1
       with:
-          apt: protobuf-compiler python3-dev python3-protobuf gcc
-
+          apt: protobuf-compiler python3-dev python3-protobuf python3-pandas python3-pytest gcc
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
