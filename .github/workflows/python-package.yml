@@ -21,7 +21,7 @@ jobs:
     steps:
          # try to cache package install
     - uses: ConorMacBride/install-package@v1
-        with:
+      with:
           apt: protobuf-compiler python3-dev gcc
 
     - uses: actions/checkout@v3
