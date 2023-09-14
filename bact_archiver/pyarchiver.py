@@ -8,7 +8,6 @@
 from .archiver import ArchiverBasis
 from .protocol_buffer import Chunk, dtypes as _dtypes, decoder as _decoder
 from . import epics_event_pb2 as proto
-from .errors import ArchiverReturnedNoData
 
 from urllib.request import urlopen, quote
 import numpy as np

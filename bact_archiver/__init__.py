@@ -11,11 +11,11 @@ in turn. See installation and configuration information in
 packages documentation
 """
 
-from .register import register_archivers
+# from .register import register_archivers
 
 # No archivers here in this package
 # Put this call in your local package
 # register_archivers(__name__)
 
 
-__all__=["utils"]
+__all__ = ["utils"]

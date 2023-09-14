@@ -236,7 +236,7 @@ class Archiver(ArchiverBasis):
             return f.read()
         except Exception as e:
             logger.error('Failed to handle request {} reason {}'.format(request, e))
-        raise e
+            raise e
 
     def requestData(self, pvname, *, t0, t1, dtype='raw'):
         '''

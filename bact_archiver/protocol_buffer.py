@@ -16,25 +16,25 @@ decoder = {
     11: proto.VectorChar,
     12: proto.VectorInt,
     13: proto.VectorDouble,
-    14: proto.V4GenericBytes
+    14: proto.V4GenericBytes,
 }
 
 #: translate EPICS types to numpy types
 dtypes = {
-    0: 'S40',
-    1: 'i2',
-    2: 'f4',
-    3: 'u4',
-    4: 'b1',
-    5: 'i4',
-    6: 'f8',
-    7: 'U40',
-    8: 'i2',
-    9: 'f4',
-    10: 'u4',
-    11: 'b1',
-    12: 'i4',
-    13: 'f8'
+    0: "S40",
+    1: "i2",
+    2: "f4",
+    3: "u4",
+    4: "b1",
+    5: "i4",
+    6: "f8",
+    7: "U40",
+    8: "i2",
+    9: "f4",
+    10: "u4",
+    11: "b1",
+    12: "i4",
+    13: "f8",
 }
 
 dsize = {
@@ -51,18 +51,18 @@ dsize = {
     10: 4,
     11: 1,
     12: 4,
-    13: 8
+    13: 8,
 }
 
 dbrtypes = {
-    'STRING': 0,
-    'INT': 1,
-    'SHORT': 1,
-    'FLOAT': 2,
-    'ENUM': 3,
-    'CHAR': 4,
-    'LONG': 5,
-    'DOUBLE': 6
+    "STRING": 0,
+    "INT": 1,
+    "SHORT": 1,
+    "FLOAT": 2,
+    "ENUM": 3,
+    "CHAR": 4,
+    "LONG": 5,
+    "DOUBLE": 6,
 }
 
 
