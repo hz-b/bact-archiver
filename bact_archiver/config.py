@@ -1,21 +1,22 @@
 """Load archiver configuration data
 """
 from .errors import DefaultArchiverNotFound
-from pkg_resources import resource_filename, Requirement
 import configparser
 import logging
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 logger = logging.getLogger('bact-archiver')
 
 
 class ArchiverConfigurationInterface(metaclass=ABCMeta):
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def retrieval_url(self):
         raise NotImplementedError('Derive from this class')
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def management_url(self):
         raise NotImplementedError('Derive from this class')
 
@@ -77,13 +78,13 @@ class ArchiverConfiguration(ArchiverConfigurationInterface):
         return path
 
 
-def get_config_filename(module_name):
+def get_config_filename(module_name: str):
     '''Get the configuration filename using pkg_resources
     '''
-    requirement = Requirement.parse(module_name)
-    filename = resource_filename(requirement, 'config/archiver.cfg')
-    logger.info('Found config file %s', filename)
-    return filename
+    from importlib.resources import files
+    archiver_config_file = files(module_name).joinpath('archiver.cfg')
+    logger.info('Config file expected at %s', archiver_config_file)
+    return archiver_config_file
 
 
 def archiver_configurations(module_name):

@@ -16,13 +16,13 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: ["3.9"] # "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
          # try to cache package install
     - uses: ConorMacBride/install-package@v1
       with:
-          apt: protobuf-compiler python3-dev python3-protobuf python3-pandas python3-pytest gcc
+          apt: protobuf-compiler
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -46,4 +46,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest --log-cli-level INFO
