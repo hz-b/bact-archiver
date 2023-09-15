@@ -4,6 +4,7 @@ import numpy as np
 
 def test_convert_date_time():
     import datetime
+    import dateutil
     import pytz
 
     now = datetime.datetime(2023, 9, 12, 9, 42, 45)
@@ -21,7 +22,7 @@ def test_convert_date_time():
     dt = convert_data_time([start.year] * len(seconds), seconds, nsecs)
 
     # need to add points their TimeZone: UTC
-    time_deltas = [t_p - p.replace(tzinfo=pytz.utc) for p, t_p in zip(points, dt)]
+    time_deltas = [t_p.astimezone(pytz.utc) - p.replace(tzinfo=pytz.utc) for p, t_p in zip(points, dt)]
 
     for dt, t_nsec in zip(time_deltas, nsecs):
         assert dt == np.timedelta64(t_nsec, "ns")
