@@ -25,8 +25,8 @@ napoleon_use_rtype = True
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.7", None),
-    "h5py": ("http://docs.h5py.org/en/stable/", None),
+    "python": ("https://docs.python.org/3.10", None),
+    "h5py": ("https://docs.h5py.org/en/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
 }
 
@@ -44,7 +44,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "bact-archiver"
-copyright = 'Helmholtzzentrum Berlin f"ur Materialien und Energie, 2019'
+copyright = 'Helmholtzzentrum Berlin f"ur Materialien und Energie, 2019,2023'
 author = 'Andreas Sch"alike, Pierre Schnizer'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,7 +114,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "bactdoc"
+htmlhelp_basename = "bact-archiver"
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -139,7 +139,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, "bact2.tex", "bact Documentation", "Author", "manual"),
+    (master_doc, "bact-archiver.tex", "", author, "manual"),
 ]
 
 
@@ -147,7 +147,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "bact2", "bact2 Documentation", [author], 1)]
+man_pages = [(master_doc, "bact-archiver", "BACT archiver documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -158,10 +158,10 @@ man_pages = [(master_doc, "bact2", "bact2 Documentation", [author], 1)]
 texinfo_documents = [
     (
         master_doc,
-        "bact2",
-        "bact2 Documentation",
+        "bact",
+        "BACT archiver ",
         author,
-        "bact2",
+        "bact-",
         "Commissioning tools for accelerators",
         "Miscellaneous",
     ),
