@@ -103,7 +103,12 @@ def archiver_configurations(module_name):
     '''
     filename = get_config_filename(module_name=module_name)
     config = configparser.ConfigParser()
-    config.read(filename)
+    try:
+        config.read([filename])
+    except Exception as exc:
+        logger.error(f"Failed to read config file {filename} of {type(filename)} for {module_name}")
+        raise exc
+
 
     def create_archiver(name):
         if name == "default":
