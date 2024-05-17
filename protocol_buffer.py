@@ -9,14 +9,14 @@ https://developers.google.com/protocol-buffers
 """
 
 import os.path
-import setuptools
-import logging
+from setuptools import distutils, Command
+from setuptools.command.build import build
+from setuptools.command.build_ext import build_ext
 
-logger = logging.getLogger('setup')
-_log = setuptools.distutils.log
+_log = distutils.log
 
 
-class GenerateProtocolBuffer(setuptools.Command):
+class GenerateProtocolBuffer(Command):
     """Custom build step for protobuf
 
     Generate the python and c++ wrapper code from the protocol buffer specifications
@@ -31,8 +31,7 @@ class GenerateProtocolBuffer(setuptools.Command):
         ('cpp', None, 'create C++ wrapper'),
         ('source', None, 'files to be processed by protoc'),
         ('src-dir', None, 'directory, where the input files are located'),
-        ('pydir', None, 'directroy, where the python output will be placed'),
-        ('build-dir', None, 'directroy, where the output will be placed'),
+        ('build-dir', None, 'directory, where the output will be placed (within build_temp)'),
         ('protoc=', None, 'protoc executable to use'),
     ]
 
@@ -47,9 +46,9 @@ class GenerateProtocolBuffer(setuptools.Command):
         self.source = ''
         self.pydir = cwd
         self.src_dir = cwd
-        self.build_dir = cwd
         # towards building in the temporary directory
         self.build_temp = None
+        self.build_dir = None
 
 
     def finalize_options(self):
@@ -65,8 +64,9 @@ class GenerateProtocolBuffer(setuptools.Command):
             self.announce('select python and C++ wrapper',
                           level=_log.INFO)
 
+        self.build_dir = self.build_dir or 'proto'
         self.set_undefined_options(
-            'build',('build_temp', 'build_temp')
+            'build', ('build_temp', 'build_temp')
         )
 
     def run(self):
@@ -80,15 +80,47 @@ class GenerateProtocolBuffer(setuptools.Command):
 
         args = [protoc, self.source, '--proto_path={}'.format(self.src_dir)]
 
+        build_temp = os.path.join(self.build_temp, self.build_dir)
+        self.mkpath(build_temp)
         if self.cpp:
-            t_args = args + ['--cpp_out={}'.format(self.build_dir)]
-            self.announce(f'Creating proto buffer using {t_args}', level=_log.INFO)
+            t_args = args + ['--cpp_out={}'.format(build_temp)]
+            self.announce(f'Creating proto buffer using {t_args}', level=_log.DEBUG)
             self.spawn(t_args)
         if self.python:
-            t_args = args + ['--python_out={}'.format(self.build_dir)]
-            self.announce(f'Creating proto buffer using {t_args}', level=_log.INFO)
+            t_args = args + ['--python_out={}'.format(build_temp)]
+            self.announce(f'Creating proto buffer using {t_args}', level=_log.DEBUG)
             self.spawn(t_args)
 
         py_file = os.path.basename(self.source).split('.proto')[0] + '_pb2.py'
         # need to hand that over to the python package builder
-        self.copy_file(os.path.join(self.build_dir, py_file), 'bact_archiver')
+        self.copy_file(os.path.join(build_temp, py_file), 'bact_archiver')
+
+
+class ProtoBufferBeforeBuild(build):
+    """Currently always run protoc before building extensions"""
+    def run(self):
+        super().run()
+
+    sub_commands = [("build_proto_c", None)] + build.sub_commands
+
+
+class AddTemporaryFilesToBuildExt(build_ext):
+
+    def initialize_options(self):
+        super().initialize_options()
+        self.build_dir = None
+
+    def finalize_options(self):
+        super().finalize_options()
+        self.set_undefined_options(
+            'build_proto_c',('build_dir', 'build_dir')
+        )
+
+    def run(self):
+        # should ask Generate ProtocolBuffer
+        proto_dir = os.path.join(self.build_temp, self.build_dir)
+        for ext in self.extensions:
+            ext.include_dirs += [proto_dir]
+            # should ask Generate ProtocolBuffer
+            ext.sources += [os.path.join(proto_dir, ext.name.split('.')[-1] + '.pb.cc')]
+        super().run()

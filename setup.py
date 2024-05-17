@@ -10,17 +10,11 @@ sys.path.append(os.path.dirname(__file__))
 
 from cysetuptools import setup
 import protocol_buffer
-from setuptools.command.build_ext import build_ext
-
-
-class ProtoBufferBeforeBuild(build_ext):
-    """Currently always run protoc before building extensions"""
-    sub_commands = [("build_proto_c", None)] + build_ext.sub_commands
-
 
 cmdclass = dict(
     build_proto_c=protocol_buffer.GenerateProtocolBuffer,
-    build_ext=ProtoBufferBeforeBuild
+    build=protocol_buffer.ProtoBufferBeforeBuild,
+    build_ext=protocol_buffer.AddTemporaryFilesToBuildExt
 )
 
 setup(
