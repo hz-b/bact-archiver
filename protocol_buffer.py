@@ -48,6 +48,8 @@ class GenerateProtocolBuffer(setuptools.Command):
         self.pydir = cwd
         self.src_dir = cwd
         self.build_dir = cwd
+        # towards building in the temporary directory
+        self.build_temp = None
 
 
     def finalize_options(self):
@@ -55,12 +57,17 @@ class GenerateProtocolBuffer(setuptools.Command):
         if not self.inplace:
             self.announce('inplace False is not support yet',
                           level=_log.WARN)
+            raise NotImplementedError('inplace False is not support yet')
 
         if not self.python and not self.cpp:
             self.python = True
             self.cpp = True
             self.announce('select python and C++ wrapper',
                           level=_log.INFO)
+
+        self.set_undefined_options(
+            'build',('build_temp', 'build_temp')
+        )
 
     def run(self):
         self.announce(f"creating wrapper for Archiver Protocol Buffers: self.cpp = {self.cpp}",
@@ -81,3 +88,7 @@ class GenerateProtocolBuffer(setuptools.Command):
             t_args = args + ['--python_out={}'.format(self.build_dir)]
             self.announce(f'Creating proto buffer using {t_args}', level=_log.INFO)
             self.spawn(t_args)
+
+        py_file = os.path.basename(self.source).split('.proto')[0] + '_pb2.py'
+        # need to hand that over to the python package builder
+        self.copy_file(os.path.join(self.build_dir, py_file), 'bact_archiver')
