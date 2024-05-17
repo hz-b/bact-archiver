@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Author: Andreas Schälicke <andreas.schaelicke@helmholtz-berlin.de>
 #          Pierre Schnizer <pierre.schnizer@helmholtz-berlin.de>
-# Date: 2017, 2020
+# Date: 2017, 2020, 2024
 """Generate the interface code for Google Protobuf
 
 For Google protocol buffer see
@@ -9,11 +9,33 @@ https://developers.google.com/protocol-buffers
 """
 
 import os.path
+from enum import Enum
+
 import setuptools
 import logging
 
 logger = logging.getLogger('setup')
 _log = setuptools.distutils.log
+
+
+class ProtocolBufferTargetLanguage(Enum):
+    cpp = 'cpp'
+    python='python'
+
+
+def generate_code(src, *, src_dir=None, target: ProtocolBufferTargetLanguage, protoc='protoc', inplace=True, spawn_cmd=None):
+    # Inplace false not supported yet
+    assert inplace is True
+    # must be provided ... not to find good default ...
+
+    assert spawn_cmd is not None
+    if src_dir is None:
+        src_dir = os.getcwd()
+
+    target = ProtocolBufferTargetLanguage(target)
+    if target == ProtocolBufferTargetLanguage.cpp:
+        target =
+    spawn_cmd(protoc, src, f'--proto_path={src_dir}')
 
 class GenerateProtocolBuffer(setuptools.Command):
     """Custom build step for protobuf
@@ -62,7 +84,7 @@ class GenerateProtocolBuffer(setuptools.Command):
                           level=_log.INFO)
 
     def run(self):
-        self.announce("creating Wrapper for Archiver Protocol Buffers",
+        self.announce(f"creating wrapper for Archiver Protocol Buffers: self.cpp = {self.cpp}",
                       level=_log.INFO)
 
         if self.protoc is None:
