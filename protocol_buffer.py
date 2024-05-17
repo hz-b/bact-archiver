@@ -9,6 +9,8 @@ https://developers.google.com/protocol-buffers
 """
 
 import os.path
+from distutils.dep_util import newer_group
+
 from setuptools import distutils, Command
 from setuptools.command.build import build
 from setuptools.command.build_ext import build_ext
@@ -26,13 +28,13 @@ class GenerateProtocolBuffer(Command):
 
     user_options = [
         # The format is (long option, short option, description).
-        ('inplace', None, 'create files inplace of proto-file (default)'),
-        ('python', None, 'create python wrapper'),
-        ('cpp', None, 'create C++ wrapper'),
-        ('source', None, 'files to be processed by protoc'),
-        ('src-dir', None, 'directory, where the input files are located'),
-        ('build-dir', None, 'directory, where the output will be placed (within build_temp)'),
-        ('protoc=', None, 'protoc executable to use'),
+        ("inplace", None, "create files inplace of proto-file (default)"),
+        ("python", None, "create python wrapper"),
+        ("cpp", None, "create C++ wrapper"),
+        ("source", None, "files to be processed by protoc"),
+        ("src-dir", None, "directory, where the input files are located"),
+        ("build-dir",   None, "directory, where the output will be placed (within build_temp)"),
+        ("protoc=", None, "protoc executable to use"),
     ]
 
     def initialize_options(self):
@@ -43,61 +45,71 @@ class GenerateProtocolBuffer(Command):
         self.cpp = False
         self.protoc = None
         cwd = os.getcwd()
-        self.source = ''
+        self.source = ""
         self.pydir = cwd
         self.src_dir = cwd
         # towards building in the temporary directory
         self.build_temp = None
         self.build_dir = None
 
-
     def finalize_options(self):
         """Post-process options."""
         if not self.inplace:
-            self.announce('inplace False is not support yet',
-                          level=_log.WARN)
-            raise NotImplementedError('inplace False is not support yet')
+            self.announce("inplace False is not support yet", level=_log.WARN)
+            raise NotImplementedError("inplace False is not support yet")
 
         if not self.python and not self.cpp:
             self.python = True
             self.cpp = True
-            self.announce('select python and C++ wrapper',
-                          level=_log.INFO)
+            self.announce("select python and C++ wrapper", level=_log.INFO)
 
-        self.build_dir = self.build_dir or 'proto'
-        self.set_undefined_options(
-            'build', ('build_temp', 'build_temp')
-        )
+        self.build_dir = self.build_dir or "proto"
+        self.set_undefined_options("build", ("build_temp", "build_temp"))
 
     def run(self):
-        self.announce(f"creating wrapper for Archiver Protocol Buffers: self.cpp = {self.cpp}",
-                      level=_log.INFO)
+        self.announce(
+            f"creating wrapper for Archiver Protocol Buffers: self.cpp = {self.cpp}",
+            level=_log.DEBUG,
+        )
 
         if self.protoc is None:
-            protoc = 'protoc'
+            protoc = "protoc"
         else:
             protoc = self.protoc
 
-        args = [protoc, self.source, '--proto_path={}'.format(self.src_dir)]
-
         build_temp = os.path.join(self.build_temp, self.build_dir)
         self.mkpath(build_temp)
-        if self.cpp:
-            t_args = args + ['--cpp_out={}'.format(build_temp)]
-            self.announce(f'Creating proto buffer using {t_args}', level=_log.DEBUG)
-            self.spawn(t_args)
-        if self.python:
-            t_args = args + ['--python_out={}'.format(build_temp)]
-            self.announce(f'Creating proto buffer using {t_args}', level=_log.DEBUG)
-            self.spawn(t_args)
 
-        py_file = os.path.basename(self.source).split('.proto')[0] + '_pb2.py'
-        # need to hand that over to the python package builder
-        self.copy_file(os.path.join(build_temp, py_file), 'bact_archiver')
+        args = [protoc, f"-I{self.src_dir}", self.source]
+        source_file = os.path.join(self.src_dir, self.source)
+        base_name = os.path.basename(self.source).split(".proto")[0]
+        if self.cpp:
+            target = os.path.join(build_temp, base_name + ".pb.cc")
+            t_args = args + ["--cpp_out={}".format(build_temp)]
+
+            if newer_group([source_file], target):
+                self.announce(
+                    f"target {target} out of date"
+                    f"Creating proto buffer using {t_args}",
+                    level=_log.DEBUG,
+                )
+                self.spawn(t_args)
+
+        if self.python:
+            target = os.path.join(build_temp, base_name + "_pb2.py")
+            t_args = args + ["--python_out={}".format(build_temp)]
+            if newer_group([source_file], target):
+                self.announce(f"Creating proto buffer using {t_args}", level=_log.DEBUG)
+                self.spawn(t_args)
+
+                py_file = os.path.basename(self.source).split(".proto")[0] + "_pb2.py"
+                # need to hand that over to the python package builder
+                self.copy_file(os.path.join(build_temp, py_file), "bact_archiver")
 
 
 class ProtoBufferBeforeBuild(build):
     """Currently always run protoc before building extensions"""
+
     def run(self):
         super().run()
 
@@ -105,22 +117,17 @@ class ProtoBufferBeforeBuild(build):
 
 
 class AddTemporaryFilesToBuildExt(build_ext):
-
     def initialize_options(self):
         super().initialize_options()
         self.build_dir = None
 
     def finalize_options(self):
         super().finalize_options()
-        self.set_undefined_options(
-            'build_proto_c',('build_dir', 'build_dir')
-        )
+        self.set_undefined_options("build_proto_c", ("build_dir", "build_dir"))
 
     def run(self):
-        # should ask Generate ProtocolBuffer
         proto_dir = os.path.join(self.build_temp, self.build_dir)
         for ext in self.extensions:
             ext.include_dirs += [proto_dir]
-            # should ask Generate ProtocolBuffer
-            ext.sources += [os.path.join(proto_dir, ext.name.split('.')[-1] + '.pb.cc')]
+            ext.sources += [os.path.join(proto_dir, ext.name.split(".")[-1] + ".pb.cc")]
         super().run()
