@@ -9,33 +9,12 @@ https://developers.google.com/protocol-buffers
 """
 
 import os.path
-from enum import Enum
-
 import setuptools
 import logging
 
 logger = logging.getLogger('setup')
 _log = setuptools.distutils.log
 
-
-class ProtocolBufferTargetLanguage(Enum):
-    cpp = 'cpp'
-    python='python'
-
-
-def generate_code(src, *, src_dir=None, target: ProtocolBufferTargetLanguage, protoc='protoc', inplace=True, spawn_cmd=None):
-    # Inplace false not supported yet
-    assert inplace is True
-    # must be provided ... not to find good default ...
-
-    assert spawn_cmd is not None
-    if src_dir is None:
-        src_dir = os.getcwd()
-
-    target = ProtocolBufferTargetLanguage(target)
-    if target == ProtocolBufferTargetLanguage.cpp:
-        target =
-    spawn_cmd(protoc, src, f'--proto_path={src_dir}')
 
 class GenerateProtocolBuffer(setuptools.Command):
     """Custom build step for protobuf
@@ -92,10 +71,13 @@ class GenerateProtocolBuffer(setuptools.Command):
         else:
             protoc = self.protoc
 
-        #self.announce('using protoc "%s"' %(protoc,), level=_log.INFO)
         args = [protoc, self.source, '--proto_path={}'.format(self.src_dir)]
 
         if self.cpp:
-            self.spawn(args + ['--cpp_out={}'.format(self.build_dir)])
+            t_args = args + ['--cpp_out={}'.format(self.build_dir)]
+            self.announce(f'Creating proto buffer using {t_args}', level=_log.INFO)
+            self.spawn(t_args)
         if self.python:
-            self.spawn(args + ['--python_out={}'.format(self.pydir)])
+            t_args = args + ['--python_out={}'.format(self.build_dir)]
+            self.announce(f'Creating proto buffer using {t_args}', level=_log.INFO)
+            self.spawn(t_args)

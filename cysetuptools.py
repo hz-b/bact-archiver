@@ -215,7 +215,7 @@ def parse_setup_cfg(fp, cythonize=False, pkg_config=None, base_dir=''):
     if pkg_config is None:
         pkg_config = _run_pkg_config
     config = configparser.ConfigParser()
-    config.read(fp)
+    config.read_file(fp)
     return _expand_cython_modules(config, cythonize, pkg_config, base_dir)
 
 

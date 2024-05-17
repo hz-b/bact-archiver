@@ -5,41 +5,28 @@
 
 import sys
 import os.path
-
 # required that cysetuptools is found
 sys.path.append(os.path.dirname(__file__))
 
 from cysetuptools import setup
-from setuptools.command.build import build
-from setuptools import distutils
 import protocol_buffer
+from setuptools.command.build_ext import build_ext
 
 
-class ActionOnBuild(build):
-    def __init__(self, dist, **kwargs):
-        build.__init__(self, dist, **kwargs)
-        # just default args
-        self._build_proto_c = protocol_buffer.GenerateProtocolBuffer(dist)
-
-    def run(self):
-        self.announce(
-            "Building archiver: creating protocol buffer", level=distutils.log.INFO
-        )
-        self._build_proto_c.run()
-        self.announce(
-            "Building archiver: running standard build", level=distutils.log.INFO
-        )
-        build.run(self)
+class ProtoBufferBeforeBuild(build_ext):
+    """Currently always run protoc before building extensions"""
+    sub_commands = [("build_proto_c", None)] + build_ext.sub_commands
 
 
 cmdclass = dict(
-    build_proto_c=protocol_buffer.GenerateProtocolBuffer, build=ActionOnBuild
+    build_proto_c=protocol_buffer.GenerateProtocolBuffer,
+    build_ext=ProtoBufferBeforeBuild
 )
 
 setup(
     cmdclass=cmdclass,
     author="Andreas Schälicke, Pierre Schnizer",
     author_email=(
-        "andreas.schälicke@helmholtz-berlin.de, " "pierre.schnizer@helmholtz-berlin.de"
+        "andreas.schälicke@helmholtz-berlin.de", "pierre.schnizer@helmholtz-berlin.de"
     ),
 )
