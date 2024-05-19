@@ -2,7 +2,7 @@
 requires = [
     "setuptools",
     "setuptools-scm",
-    "setuptools-protobuf",
+    "setuptools-protobuf >= 0.1.15",
     "numpy"]
 
 build-backend = "setuptools.build_meta"
