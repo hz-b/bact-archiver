@@ -30,6 +30,7 @@ jobs:
       with:
           repository: hz-b/setuptools-protobuf
           path: setuptools-protobuf
+          ref: dev/feature/cpp-interface
 
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
