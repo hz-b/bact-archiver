@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: ["3.9", # "3.10", "3.11",
+        python-version: [# "3.9", # "3.10", "3.11",
         "3.12"]
 
     steps:
@@ -46,6 +46,7 @@ jobs:
 
     - name: Install dependencies setuptools-protobuf
       run: |
+           find . -type f
            t_dir=setuptools-protobuf
            if [ -f $t_dir/requirements.txt ]; then pip install -r $t_dir/requirements.txt; fi
            # make it a path, otherwise it searches pypi repo
