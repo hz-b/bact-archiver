@@ -6,10 +6,7 @@
 from setuptools import Extension, setup
 from setuptools_protobuf import Protobuf
 
-
-# cmdclass = dict(build_proto_c=protocol_buffer.GenerateProtocolBuffer)
 setup(
-    # cmdclass=cmdclass,
     author="Andreas Schälicke, Pierre Schnizer",
     author_email=(
         "andreas.schälicke@helmholtz-berlin.de",
