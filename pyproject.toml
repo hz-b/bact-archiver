@@ -1,6 +1,14 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm", "numpy"]
+requires = [
+    "setuptools",
+    "setuptools-scm",
+    "setuptools-protobuf",
+    "numpy"]
+
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools-protobuf]
+protobufs = ["proto/epics_event.proto"]
 
 dependencies = [
     "pandas",

@@ -5,7 +5,7 @@
 import sys, os.path
 # required that cysetuptools is found
 sys.path.append(os.path.dirname(__file__))
-from cysetuptools import setup
+# from cysetuptools import setup
 import protocol_buffer
 
 cmdclass = dict(build_proto_c=protocol_buffer.GenerateProtocolBuffer)
