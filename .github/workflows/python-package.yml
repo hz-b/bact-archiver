@@ -39,7 +39,7 @@ jobs:
           path: bact-archiver
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
@@ -61,7 +61,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest wheel
-        if [ -f bact-archiver/requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f bact-archiver/requirements.txt ]; then pip install -r bact-archiver/requirements.txt; fi
 
     - name: build and binary module
       run: |
