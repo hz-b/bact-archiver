@@ -16,23 +16,47 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", # "3.10", "3.11",
+        "3.12"]
 
     steps:
-         # try to cache package install
+
     - uses: ConorMacBride/install-package@v1
       with:
           apt: protobuf-compiler
-    - uses: actions/checkout@v3
+
+    - name: Checkout setuptools-protobuf
+      uses: actions/checkout@v4
+      with:
+          repository: hz-b/setuptools-protobuf
+          path: setuptools-protobuf
+
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+        cache-dependency-path: |
+           **/setup.cfg
+           **/pyproject.toml
+           **/requirements*.txt
+         # try to cache package install
+
+    - name: Install dependencies setuptools-protobuf
+      run: |
+           t_dir=setuptools-protobuf
+           if [ -f $t_dir/requirements.txt ]; then pip install -r $t_dir/requirements.txt; fi
+           # make it a path, otherwise it searches pypi repo
+           pip install $t_dir/
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest wheel
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+
     - name: build and binary module
       run: |
         python setup.py build_proto_c
@@ -44,6 +68,7 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest
       run: |
         pytest --log-cli-level INFO
