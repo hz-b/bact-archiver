@@ -1,5 +1,3 @@
-include cysetuptools.py
-include protocol_buffer.py
 # the source files
 include proto/*
 # the files generated

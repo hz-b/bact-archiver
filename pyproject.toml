@@ -38,7 +38,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["bact_archiver"]
+# where = ["bact_archiver"]
 # include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
 namespaces = false
 
