@@ -29,7 +29,6 @@ jobs:
     - name: Checkout bact-archiver
       uses: actions/checkout@v4
       with:
-          path: bact-archiver
           ref: dev/feature/setuptools-protobuf
           submodules: true
 
@@ -62,7 +61,7 @@ jobs:
 
     - name: build and binary module
       run: |
-        python -m pip install bact-archiver/ -v --find-links wheels/ .
+        python -m pip install -v --find-links wheels/ .
 
     - name: Lint with flake8
       run: |
