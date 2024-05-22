@@ -30,7 +30,7 @@ cimport cython
 
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
-cdef string cdecode(char[:] data, string & res) nogil:
+cdef string cdecode(const char[:] data, string & res) noexcept nogil:
     """Decode a PB message.
 
     Args:
