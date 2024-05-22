@@ -26,18 +26,12 @@ jobs:
       with:
           apt: protobuf-compiler
 
-    - name: Checkout setuptools-protobuf
-      uses: actions/checkout@v4
-      with:
-          repository: hz-b/setuptools-protobuf
-          path: setuptools-protobuf
-          ref: dev/feature/cpp-interface
-
     - name: Checkout bact-archiver
       uses: actions/checkout@v4
       with:
           path: bact-archiver
           ref: dev/feature/setuptools-protobuf
+          submodules: true
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -50,23 +44,25 @@ jobs:
            **/requirements*.txt
          # try to cache package install
 
-    - name: Install setuptools-protobuf
+    - name: make wheel for setuptools-protobuf
       run: |
+           mkdir wheels/
            find . -type f
-           t_dir=setuptools-protobuf
+           # upgrade just in case
+           python -m pip install --upgrade pip
+           python -m pip install flake8 pytest wheel
+           t_dir=external-repositories/setuptools-protobuf/
            if [ -f $t_dir/requirements.txt ]; then pip install -r $t_dir/requirements.txt; fi
            # make it a path, otherwise it searches pypi repo
-           pip install $t_dir/
+           python -m pip wheel -w wheels/ $t_dir/
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest wheel
         if [ -f bact-archiver/requirements.txt ]; then pip install -r bact-archiver/requirements.txt; fi
 
     - name: build and binary module
       run: |
-        python -m pip install bact-archiver/
+        python -m pip install bact-archiver/ -v --find-links wheels/ .
 
     - name: Lint with flake8
       run: |
