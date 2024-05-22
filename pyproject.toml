@@ -1,17 +1,49 @@
+# -*- coding: utf-8 -*-
+
 [build-system]
 requires = [
     "setuptools",
     "setuptools-scm",
     "setuptools-protobuf >= 0.1.15",
+    "cython",
     "numpy"]
 
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools-protobuf]
-protobufs = ["proto/epics_event.proto"]
+[project]
+name = "bact-archiver"
+# url = "https://github.com/hz-b/bact-archiver"
+# fullname = "BACT epics archiver appliance access"
+version = "0.2.1"
+
+description = "EPICS archiver appliance access using google protobuf"
+readme="README.rst"
+authors = [
+   {name = "Andreas Schälicke", email="andreas.schaelicke@helmholtz-berlin.de"},
+   {name = "Pierre Schnizer", email="pierre.schnizer@helmholtz-berlin.de"},
+]
+license = {text = "GNU General Public License (GPL)"}
+classifiers = [
+   "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 
 dependencies = [
+    "numpy",
     "pandas",
     "protobuf >=3.18.3, ==3.*",
     "python-dateutil"
 ]
+
+[tool.setuptools.packages.find]
+where = ["bact_archiver"]
+# include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
+namespaces = false
+
+# [tool.setuptools.packages-data]
+# bact_archiver = ["archiver.cfg"]
+
+[tool.setuptools-protobuf]
+protobufs = ["proto/epics_event.proto"]
