@@ -6,7 +6,8 @@ requires = [
     "setuptools-scm",
     "setuptools-protobuf >= 0.1.15",
     "cython",
-    "numpy"]
+    "numpy"
+]
 
 build-backend = "setuptools.build_meta"
 
@@ -38,12 +39,14 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-# where = ["bact_archiver"]
+where = ["bact_archiver"]
 # include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
+exclude = ["*.cc", "*.h", "*.proto"]
+# exclude = ["proto/*"]
 namespaces = false
 
 # [tool.setuptools.packages-data]
 # bact_archiver = ["archiver.cfg"]
 
 [tool.setuptools-protobuf]
-protobufs = ["proto/epics_event.proto"]
+protobufs = ["bact_archiver/proto/epics_event.proto"]
