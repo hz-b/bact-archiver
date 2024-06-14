@@ -37,7 +37,7 @@ jobs:
       run: |
         python setup.py build_proto_c
         python -m pip wheel ./
-        python -m install ./
+        python -m pip install ./
         
     - name: Archive wheel
       uses: actions/upload-artifact@v4
