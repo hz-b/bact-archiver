@@ -17,10 +17,10 @@ The following functions are expected to be called by external modules?
 """
 
 # read EPICSEvent.pxd definition of Protocol-Buffer code
-from proto.epics_event cimport PayloadInfo,  string
-from proto.epics_event cimport ScalarDouble, ScalarString, ScalarEnum, ScalarInt
-from proto.epics_event cimport VectorDouble, VectorFloat
-from proto.epics_event cimport VectorInt, VectorShort, VectorChar
+from bact_archiver.proto.epics_event cimport PayloadInfo,  string
+from bact_archiver.proto.epics_event cimport ScalarDouble, ScalarString, ScalarEnum, ScalarInt
+from bact_archiver.proto.epics_event cimport VectorDouble, VectorFloat
+from bact_archiver.proto.epics_event cimport VectorInt, VectorShort, VectorChar
 
 import numpy as np
 cimport numpy as np
@@ -30,7 +30,7 @@ cimport cython
 
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
-cdef string cdecode(char[:] data, string & res) nogil:
+cdef string cdecode(const char[:] data, string & res) noexcept nogil:
     """Decode a PB message.
 
     Args:

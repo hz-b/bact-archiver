@@ -9,7 +9,7 @@ cdef extern from "google/protobuf/stubs/port.h" namespace "::google::protobuf":
      ctypedef int int32
      ctypedef int uint32
 
-cdef extern from "epics_event.pb.h" namespace "EPICS":
+cdef extern from "bact_archiver/proto/epics_event.pb.h" namespace "EPICS":
     cdef enum PayloadType:
         pass
 
