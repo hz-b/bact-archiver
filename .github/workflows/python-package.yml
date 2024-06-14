@@ -22,7 +22,7 @@ jobs:
          # try to cache package install
     - uses: ConorMacBride/install-package@v1
       with:
-          apt: protobuf-compiler
+          apt: protobuf-compilertests/
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -47,4 +47,4 @@ jobs:
     - name: Test with pytest
       run: |
         find 
-        python -m pytest --log-cli-level INFO tests/
+        (cd tests && python -m pytest --log-cli-level INFO)
