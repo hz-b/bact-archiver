@@ -1,21 +1,13 @@
 # -*- coding: utf-8 -*-
-
 [build-system]
-requires = [
-    "setuptools",
-    "setuptools-scm",
-    "cython",
-    "numpy",
-]
-
+requires = ["setuptools >= 61.0", "setuptools-scm", "cython", "numpy"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "bact-archiver"
-# url = "https://github.com/hz-b/bact-archiver"
+# url =
 # fullname = "BACT epics archiver appliance access"
 version = "0.2.2"
-
 description = "EPICS archiver appliance access using google protobuf"
 readme="README.rst"
 authors = [
@@ -30,6 +22,8 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 
+requires-python = ">= 3.7"
+
 dependencies = [
     "numpy",
     "pandas",
@@ -37,10 +31,13 @@ dependencies = [
     "python-dateutil"
 ]
 
+
+[project.urls]
+homepage = "https://github.com/hz-b/bact-archiver"
+
+
+
 [tool.setuptools.packages.find]
-where = ["bact_archiver"]
-# include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
-exclude = ["*.cc", "*.h", "*.proto"]
-# exclude = ["proto/*"]
+exclude = ["*.cc", "*.h", "proto/*"]
 namespaces = false
 
