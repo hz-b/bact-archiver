@@ -36,8 +36,16 @@ jobs:
     - name: build and binary module
       run: |
         python setup.py build_proto_c
-        python -m pip install ./
-
+        python -m pip wheel ./
+        python -m install ./
+        
+    - name: Archive wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: bact_archiver_wheel 
+        path: bact_archiver*.whl
+        retention-days: 14
+      
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
