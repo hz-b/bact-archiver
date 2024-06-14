@@ -20,7 +20,7 @@ setup(
                 "proto/epics_event.pyx",
                 "proto_gen/epics_event.pb.cc",
             ],
-            include_dirs=[".", "proto_gen/", get_include()],
+            include_dirs=[".", "proto/", "proto_gen/", get_include()],
             libraries=[
                 "protobuf",
             ],
