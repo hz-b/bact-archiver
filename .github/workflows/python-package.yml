@@ -23,9 +23,9 @@ jobs:
     - uses: ConorMacBride/install-package@v1
       with:
           apt: protobuf-compiler
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -36,7 +36,7 @@ jobs:
     - name: build and binary module
       run: |
         python setup.py build_proto_c
-        python -m pip install .
+        python -m pip install ./
 
     - name: Lint with flake8
       run: |
@@ -46,4 +46,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --log-cli-level INFO
+        find 
+        python -m pytest --log-cli-level INFO tests/
