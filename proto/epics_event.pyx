@@ -196,7 +196,7 @@ cdef read_chunk_i4(char[:] seq, int N, np.ndarray[np.int32_t] secs, np.ndarray[n
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef read_chunk_f8(char[:] seq, int N, np.ndarray[np.int32_t] secs, np.ndarray[np.int32_t] nanos):
-    cdef np.ndarray[np.float_t] values = np.empty(N,dtype=np.float)
+    cdef np.ndarray[np.float_t] values = np.empty(N,dtype=float)
 
     cdef ScalarDouble event
 
