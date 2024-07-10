@@ -1,10 +1,8 @@
-include cysetuptools.py
 include protocol_buffer.py
 # the source files
 include proto/*
 # the files generated
 include proto_gen/*
-include bact_archiver/*.py
 # configuration files
 include bact_archiver/*.cfg
 # documentation files
