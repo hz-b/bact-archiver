@@ -45,12 +45,12 @@ jobs:
         python -m pip wheel ./
         python -m pip install ./
 
-    - name: Archive wheel
-      uses: actions/upload-artifact@v4
-      with:
-        name: bact_archiver_${{ matrix.python-version }}
-        path: bact_archiver*.whl
-        retention-days: 14
+    #- name: Archive wheel
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: bact_archiver_${{ matrix.python-version }}
+    #    path: bact_archiver*.whl
+    #    retention-days: 14
 
     - name: Lint with flake8
       run: |
