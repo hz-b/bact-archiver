@@ -100,7 +100,7 @@ def get_data_from_archiver(data):
             res.append(chunk.value)
             header = chunk.header
             years.extend(chunk.header.year *
-                         np.ones(len(chunk.value[0]), dtype=np.int))
+                         np.ones(len(chunk.value[0]), dtype=int))
             logger.debug(chunk.header)
             # print('found data:',len(chunk.value[0]))
         else:
@@ -158,13 +158,16 @@ def get_data(data, *, return_type='pandas', time_format='timestamp',
         return None
     elif len(res) == 1:
         values, secs, nanos = res[0]
-        years = years[0] * np.ones(len(secs), dtype=np.int)
+        years = years[0] * np.ones(len(secs), dtype=int)
         # print('One Chunk Only')
         # print('chunk.header.year = ',chunk.header.year)
     else:
         # if multible chunks, combine data and return
         # print("{} chunks found".format(len(res)))
         values = np.concatenate([r[0] for r in res])
+
+
+
         secs = np.concatenate([r[1] for r in res])
         nanos = np.concatenate([r[2] for r in res])
 

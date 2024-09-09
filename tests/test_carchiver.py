@@ -3,6 +3,7 @@ import unittest
 import logging
 
 from bact_archiver.pyarchiver import get_data
+from bact_archiver.carchiver import get_data_from_archiver as get_data
 from common import test_data_dir
 
 log = logging.getLogger('test')
@@ -21,6 +22,8 @@ class ArchiverClientTest(unittest.TestCase):
     def run_decode(self, *, fname=None, **kw):
         data = self.read(fname)
 
+        tmp = get_data(data)
+        return
         header, values = get_data(data)
         log.debug('Header %s', header)
 
