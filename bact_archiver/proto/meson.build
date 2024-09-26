@@ -14,6 +14,21 @@ cpp_generated = cpp_gen.process('epics_event.proto')
 py_generated = py_gen.process('epics_event.proto')
 
 # cython extension
+# Why do I need to copy the files here?
+# by default ninja will put them into its own dir?
+cpp_proc = custom_target('cpp_proto',
+                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
+                        input : cpp_generated,
+                        output : '.',
+                        build_by_default : true)
+
+py_proc = custom_target('py_proto',
+                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
+                        input : py_generated,
+                        output : 'epics_event_pb2.py',
+                        build_by_default : true)
+
+# cpython interface
 incdir_numpy = run_command(py,
   ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
   check : true
@@ -41,4 +56,3 @@ py.extension_module(
   override_options : ['cython_language=cpp'],
   dependencies : protobuf
  )
-
