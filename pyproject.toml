@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+# [build-system]
+# requires = ["setuptools >= 61.0", "setuptools-scm", "cython", "numpy"]
+# build-backend = "setuptools.build_meta"
+
 [build-system]
-requires = ["setuptools >= 61.0", "setuptools-scm", "cython", "numpy"]
-build-backend = "setuptools.build_meta"
+build-backend = 'mesonpy'
+requires = ['meson-python', 'cython', 'numpy']
 
 [project]
 name = "bact-archiver"
@@ -40,4 +44,3 @@ homepage = "https://github.com/hz-b/bact-archiver"
 [tool.setuptools.packages.find]
 exclude = ["*.cc", "*.h", "proto/*"]
 namespaces = false
-
