@@ -6,5 +6,5 @@ py_sources = run_command('/bin/sh',
 py.install_sources(
   py_sources,
   pure: false,
-  subdir: 'timepix_sort'
+  subdir: 'bact_archiver'
 )
