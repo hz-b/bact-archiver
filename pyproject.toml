@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# [build-system]
-# requires = ["setuptools >= 61.0", "setuptools-scm", "cython", "numpy"]
-# build-backend = "setuptools.build_meta"
-
 [build-system]
 build-backend = 'mesonpy'
 requires = ['meson-python', 'cython', 'numpy']
