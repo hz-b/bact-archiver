@@ -5,6 +5,7 @@ py_sources = run_command('/bin/sh',
 
 py.install_sources(
   py_sources,
+  'archiver.cfg',
   pure: false,
   subdir: 'bact_archiver'
 )
