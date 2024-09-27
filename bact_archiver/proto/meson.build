@@ -28,7 +28,7 @@ py_proc = custom_target('py_proto',
                         output : 'epics_event_pb2.py',
                         build_by_default : true)
 
-# cpython interface
+# cython extension
 incdir_numpy = run_command(py,
   ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
   check : true
