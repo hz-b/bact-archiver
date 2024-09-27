@@ -1,3 +1,7 @@
+2024-09-27 Pierre Schnizer <pierre.schnizer@helmholtz-berlin.de>
+        * meson build system: replaced setuptools with meson
+	build. facilites compiling
+
 2021-04-16 Pierre Schnizer <pierre.schnizer@helmholtz-berlin.de>
 
 	* archiver.getData: t0, t1 now required to be timezone aware
