@@ -1,14 +1,7 @@
-<<<<<<< HEAD:bact_archiver/proto/meson.build
 # protoc: created required files
 protoc = find_program('protoc', required : true)
 protobuf = dependency('protobuf', required : true)
 
-=======
-# protoc: created required files
-protoc = find_program('protoc', required : true)
-protobuf = dependency('protobuf', required : true)
-
->>>>>>> a504b3f ([FIX] build system: dependencies):proto/meson.build
 cpp_gen = generator(protoc,
   output    : ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
   arguments : ['--proto_path=@CURRENT_SOURCE_DIR@', '--cpp_out=@BUILD_DIR@', '@INPUT@']
@@ -20,12 +13,21 @@ py_gen = generator(protoc,
 cpp_generated = cpp_gen.process('epics_event.proto')
 py_generated = py_gen.process('epics_event.proto')
 
-py_proc = custom_target('py_proto',
-                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
-                        input : py_generated,
-                        output : 'epics_event_pb2.py',
-                        build_by_default : true)
-
+# py_proc = custom_target('py_proto',
+#                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
+#                        input : py_generated,
+#                        output : 'epics_event_pb2.py',
+#                        build_by_default : true)
+message('install dir')
+message(py.get_install_dir())
+py_proc2 = configure_file(# 'python_proto_as_config',
+	               command:  [ 'proto_wrap.sh', '@INPUT@', '@OUTPUT@' ],
+		       # copy : true,
+		       input : 'epics_event.proto',
+		       output :  'bact_archiver_epics_event_pb2.py',
+		       install : true,
+		       install_dir: py.get_install_dir(),
+)
 # cython extension
 incdir_numpy = run_command(py,
   ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
