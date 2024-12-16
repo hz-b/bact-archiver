@@ -21,10 +21,10 @@ py_generated = py_gen.process('epics_event.proto')
 message('install dir')
 message(py.get_install_dir())
 py_proc2 = configure_file(# 'python_proto_as_config',
-	               command:  [ 'proto_wrap.sh', '@INPUT@', '@OUTPUT@' ],
+	           command:  [ 'proto_wrap.sh', '@INPUT@', '@OUTPUT@' ],
 		       # copy : true,
 		       input : 'epics_event.proto',
-		       output :  'bact_archiver_epics_event_pb2.py',
+		       output :  'epics_event_pb2.py',
 		       install : true,
 		       install_dir: py.get_install_dir(),
 )
@@ -39,6 +39,7 @@ py.extension_module(
   'epics_event',
   'epics_event.pyx',
   cpp_generated,
+  py_generated,
   install: true,
   include_directories : inc_dir,
   subdir: 'bact_archiver',
