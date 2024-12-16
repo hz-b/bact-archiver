@@ -5,7 +5,7 @@
 """
 
 from .epics_event import read_chunk, decode
-from . import epics_event_pb2 as proto
+import bact_archiver_epics_event_pb2 as proto
 from .protocol_buffer import (Chunk, dtypes as _dtypes, decoder as _decoder,
                               dbrtypes as _dbrtypes, dsize as _dsize)
 from .archiver import ArchiverBasis, convert_datetime_to_timestamp
