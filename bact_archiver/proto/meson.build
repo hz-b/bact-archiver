@@ -13,29 +13,23 @@ py_gen = generator(protoc,
 cpp_generated = cpp_gen.process('epics_event.proto')
 py_generated = py_gen.process('epics_event.proto')
 
-# py_proc = custom_target('py_proto',
-#                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
-#                        input : py_generated,
-#                        output : 'epics_event_pb2.py',
-#                        build_by_default : true)
-message('install dir')
-message(py.get_install_dir())
-py_proc2 = configure_file(# 'python_proto_as_config',
-	           command:  [ 'proto_wrap.sh', '@INPUT@', '@OUTPUT@' ],
-		       # copy : true,
-		       input : 'epics_event.proto',
-		       output :  'epics_event_pb2.py',
-		       install : true,
-		       install_dir: py.get_install_dir() / 'bact_archiver',
-		       install_tag: 'python-runtime',
-)
-
 # cython extension
 incdir_numpy = run_command(py,
   ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
   check : true
 ).stdout().strip()
 inc_dir = include_directories(incdir_numpy)
+
+py_gen2 = custom_target('epics_event_build_py',
+    output: ['epics_event_pb2.py'],
+    input: 'epics_event.proto',
+    command: [
+        protoc, '--proto_path=@SRCDIR@', '--python_out=@OUTDIR@', '@INPUT@'
+    ],
+    install: true,
+    install_dir: py.get_install_dir() / 'bact_archiver',  # need to install _umfpack.py
+    install_tag: 'python-runtime',
+)
 
 py.extension_module(
   'epics_event',
@@ -47,3 +41,4 @@ py.extension_module(
   override_options : ['cython_language=cpp'],
   dependencies : protobuf
  )
+
