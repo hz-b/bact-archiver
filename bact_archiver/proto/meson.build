@@ -6,19 +6,14 @@ cpp_gen = generator(protoc,
   output    : ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
   arguments : ['--proto_path=@CURRENT_SOURCE_DIR@', '--cpp_out=@BUILD_DIR@', '@INPUT@']
   )
+cpp_generated = cpp_gen.process('epics_event.proto')
+# does not fully work ..
+# how do I install it
 py_gen = generator(protoc,
   output    : ['@BASENAME@_pb2.py'],
   arguments : ['--proto_path=@CURRENT_SOURCE_DIR@', '--python_out=@BUILD_DIR@', '@INPUT@']
   )
-cpp_generated = cpp_gen.process('epics_event.proto')
 py_generated = py_gen.process('epics_event.proto')
-
-# cython extension
-incdir_numpy = run_command(py,
-  ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
-  check : true
-).stdout().strip()
-inc_dir = include_directories(incdir_numpy)
 
 py_gen2 = custom_target('epics_event_build_py',
     output: ['epics_event_pb2.py'],
@@ -27,9 +22,18 @@ py_gen2 = custom_target('epics_event_build_py',
         protoc, '--proto_path=@SRCDIR@', '--python_out=@OUTDIR@', '@INPUT@'
     ],
     install: true,
-    install_dir: py.get_install_dir() / 'bact_archiver',  # need to install _umfpack.py
+    install_dir: py.get_install_dir() / 'bact_archiver',  # need to instalall epics_event_pb2.py
     install_tag: 'python-runtime',
 )
+
+
+# cython extension
+incdir_numpy = run_command(py,
+  ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
+  check : true
+).stdout().strip()
+inc_dir = include_directories(incdir_numpy)
+
 
 py.extension_module(
   'epics_event',
