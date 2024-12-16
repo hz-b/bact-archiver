@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: False
       matrix:
-        python-version: [ "3.10" ]# [ "3.9", "3.10",  "3.11"]
+        python-version: ["3.9", "3.10",  "3.11"]
         numpy-version: [ "numpy<2.0" , "numpy>=2.0" ]
 
     steps:
@@ -60,5 +60,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        find . -type f
         (cd tests && python -m pytest --log-cli-level INFO)
