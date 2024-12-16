@@ -26,8 +26,10 @@ py_proc2 = configure_file(# 'python_proto_as_config',
 		       input : 'epics_event.proto',
 		       output :  'epics_event_pb2.py',
 		       install : true,
-		       install_dir: py.get_install_dir(),
+		       install_dir: py.get_install_dir() / 'bact_archiver',
+		       install_tag: 'python-runtime',
 )
+
 # cython extension
 incdir_numpy = run_command(py,
   ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
@@ -39,7 +41,6 @@ py.extension_module(
   'epics_event',
   'epics_event.pyx',
   cpp_generated,
-  py_generated,
   install: true,
   include_directories : inc_dir,
   subdir: 'bact_archiver',
