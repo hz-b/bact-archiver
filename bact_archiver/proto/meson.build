@@ -13,12 +13,21 @@ py_gen = generator(protoc,
 cpp_generated = cpp_gen.process('epics_event.proto')
 py_generated = py_gen.process('epics_event.proto')
 
-py_proc = custom_target('py_proto',
-                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
-                        input : py_generated,
-                        output : 'epics_event_pb2.py',
-                        build_by_default : true)
-
+# py_proc = custom_target('py_proto',
+#                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
+#                        input : py_generated,
+#                        output : 'epics_event_pb2.py',
+#                        build_by_default : true)
+message('install dir')
+message(py.get_install_dir())
+py_proc2 = configure_file(#'python_proto_as_config',
+	               # command:  [ 'proto_wrap.sh', '@INPUT@', '@OUTPUT@' ],
+		       copy : true,
+		       input : 'epics_event.proto',
+		       output :  'epics_event_pb2.py',
+		       install : true,
+		       install_dir: py.get_install_dir(),
+)
 # cython extension
 incdir_numpy = run_command(py,
   ['-c', 'import os; os.chdir(".."); import numpy; print(numpy.get_include())'],
