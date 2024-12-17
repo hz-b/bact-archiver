@@ -19,7 +19,7 @@ py_gen2 = custom_target('epics_event_build_py',
     output: ['epics_event_pb2.py'],
     input: 'epics_event.proto',
     command: [
-        protoc, '--proto_path=@SRCDIR@', '--python_out=@OUTDIR@', '@INPUT@'
+        protoc, '--proto_path=@CURRENT_SOURCE_DIR@', '--python_out=@OUTDIR@', '@INPUT@'
     ],
     install: true,
     install_dir: py.get_install_dir() / 'bact_archiver',  # need to instalall epics_event_pb2.py
