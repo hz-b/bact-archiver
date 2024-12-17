@@ -13,14 +13,16 @@ py_gen = generator(protoc,
 cpp_generated = cpp_gen.process('epics_event.proto')
 py_generated = py_gen.process('epics_event.proto')
 
-# cython extension
-# Why do I need to copy the files here?
-# by default ninja will put them into its own dir?
-cpp_proc = custom_target('cpp_proto',
-                        command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
-                        input : cpp_generated,
-                        output : '.',
-                        build_by_default : true)
+py_gen2 = custom_target('epics_event_build_py',
+    output: ['epics_event_pb2.py'],
+    input: 'epics_event.proto',
+    command: [
+        protoc, '--proto_path=@CURRENT_SOURCE_DIR@', '--python_out=@OUTDIR@', '@INPUT@'
+    ],
+    install: true,
+    install_dir: py.get_install_dir() / 'bact_archiver',  # need to instalall epics_event_pb2.py
+    install_tag: 'python-runtime',
+)
 
 py_proc = custom_target('py_proto',
                         command: [ 'cp', '@INPUT@', '@OUTPUT@' ],
