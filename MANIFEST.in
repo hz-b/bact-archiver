@@ -1,8 +1,8 @@
 include protocol_buffer.py
 # the source files
-include proto/ *
+include proto/*
 # the files generated
-include proto_gen/ *
+include proto_gen/*
 # configuration files
 include bact_archiver/*.cfg
 # documentation files
