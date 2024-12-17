@@ -6,7 +6,7 @@ requires = ['meson-python', 'cython', 'numpy']
 
 [project]
 name = "bact-archiver"
-version = "0.3.0"
+version = "0.3.1"
 description = "EPICS archiver appliance access using google protobuf"
 readme="README.rst"
 authors = [
