@@ -10,4 +10,3 @@ py.install_sources(
   pure: false,
   subdir: 'bact_archiver'
 )
-subdir('proto')
