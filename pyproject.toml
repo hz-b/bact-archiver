@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 [build-system]
-requires = ["setuptools >= 61.0", "setuptools-scm", "cython", "numpy"]
-build-backend = "setuptools.build_meta"
+build-backend = 'mesonpy'
+requires = ['meson-python', 'cython', 'numpy']
+
 
 [project]
 name = "bact-archiver"
-# url =
-# fullname = "BACT epics archiver appliance access"
-version = "0.2.3"
+version = "0.3.0"
 description = "EPICS archiver appliance access using google protobuf"
 readme="README.rst"
 authors = [
@@ -34,10 +33,3 @@ dependencies = [
 
 [project.urls]
 homepage = "https://github.com/hz-b/bact-archiver"
-
-
-
-[tool.setuptools.packages.find]
-exclude = ["*.cc", "*.h", "proto/*"]
-namespaces = false
-
