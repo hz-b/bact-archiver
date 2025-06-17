@@ -6,7 +6,7 @@ requires = ['meson-python', 'cython', 'numpy']
 
 [project]
 name = "bact-archiver"
-version = "0.3.1"
+version = "0.3.2"
 description = "EPICS archiver appliance access using google protobuf"
 readme="README.rst"
 authors = [
@@ -26,7 +26,10 @@ requires-python = ">= 3.7"
 dependencies = [
     "numpy",
     "pandas",
-    "protobuf >=3.18.3, ==3.*",
+    # alert was solely for python protobuf interface
+    # here only c++ compiled protobuf elements are used
+    # but better be safe than ....
+    "protobuf >=4.25.8",
     "python-dateutil"
 ]
 
