@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 [build-system]
 build-backend = 'mesonpy'
-requires = ['meson-python', 'cython', 'numpy']
+requires = [
+    'meson-python',
+    # meson python includes meson, but I need to find out which
+    # version is minimum.
+    # hints are changes were between 1.11 and 1.10
+    'meson>=1.11',
+    'cython>=1.11',
+    'numpy'
+]
 
 
 [project]
 name = "bact-archiver"
-version = "0.3.2"
+version = "0.4.0"
 description = "EPICS archiver appliance access using google protobuf"
 readme="README.rst"
 authors = [
@@ -30,7 +38,9 @@ dependencies = [
     # here only c++ compiled protobuf elements are used
     # but better be safe than ....
     "protobuf >=4.25.8",
-    "python-dateutil"
+    "python-dateutil",
+    # Todo: need to replace it with zoneinfo
+    "pytz"
 ]
 
 

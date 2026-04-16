@@ -38,13 +38,16 @@ sudo apt install g++ libprotobuf-dev protobuf-compiler python3-protobuf \
                  python3-numpy
 ```
 
-
-The standard build sequence is
+You can install the package from pypi using
 ```bash
-python setup.py build_proto_c
-python setup.py build
-python setup.py install
+python3 -m pip install 'bact-archiver>0.4'
 ```
+Previous versions will fail as the meson build system needed to be updated.
+
+Alternatively you can build a wheel yourself
+* create a virtual environment
+* update your pip and wheel package
+* install this package
 
 In case the google protocol buffer include files are not found automatically, you can set the include path like
 ```
