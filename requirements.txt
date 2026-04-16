@@ -1,6 +1,0 @@
-pandas
-protobuf >=3.18.3, ==3.*
-python-dateutil
-setuptools>=61.0.0
-# only once for building cysetuptools
-# cython-setuptools
