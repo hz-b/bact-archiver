@@ -5,11 +5,10 @@ Typical usage:
      * Edit the archiver.cfg package there to reflect your installation
      * Installing this package will automatically install this package
 '''
-
+import datetime
 from abc import ABCMeta, abstractmethod, abstractproperty
 import json
 import logging
-import pytz
 from urllib.request import urlopen, quote
 
 logger = logging.getLogger('bact-archiver')
@@ -39,19 +38,22 @@ def convert_datetime_to_timestamp(datum):
 class ArchiverInterface(metaclass=ABCMeta):
     '''Archiver interface definition
     '''
-    @abstractproperty
-    def name(self):
+    @property
+    @abstractmethod
+    def name(self) -> str:
         'Name of the archiver'
 
-    @abstractproperty
-    def description(self):
+    @property
+    @abstractmethod
+    def description(self) -> str:
         'Description of the archiver'
 
     @abstractmethod
-    def getData(self, var, * t0, t1, **kws):
+    def getData(self, pvname: str, * t0: datetime.datetime, t1: datetime.datetime, **kws):
         """Get archiver data for single EPICS variable in given time frame.
 
         Args:
+            pvname:                         variable to obtain
             t0 :                         start time a :class:`datetime.datetime` object
             t1 :                         end time a :class:`datetime.datetime` object
 
@@ -137,7 +139,7 @@ class ArchiverBasis(ArchiverInterface):
         url += '/bpl/{cmd}{opt}'
         return url
 
-    def getData(self, pvname, *, t0, t1, **kws):
+    def getData(self, pvname: str, *, t0: datetime.datetime, t1: datetime.datetime, **kws):
 
         t0 = t0.astimezone(_utc)
         t1 = t1.astimezone(_utc)
