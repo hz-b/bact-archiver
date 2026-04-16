@@ -9,6 +9,7 @@ import datetime
 from abc import ABCMeta, abstractmethod, abstractproperty
 import json
 import logging
+import pytz
 from urllib.request import urlopen, quote
 
 logger = logging.getLogger('bact-archiver')
